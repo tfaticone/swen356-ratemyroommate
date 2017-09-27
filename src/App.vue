@@ -1,5 +1,16 @@
 <template>
   <div id="app">
+    <md-toolbar>
+      <md-button class="md-icon-button">
+        <md-icon>menu</md-icon>
+      </md-button>
+      <h2 class="md-title" style="flex: 1">Rate my Roommate</h2>
+
+      <md-button class="md-icon-button">
+        <md-icon>search</md-icon>
+      </md-button>
+    </md-toolbar>
+
     <router-view></router-view>
   </div>
 </template>
@@ -11,12 +22,5 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
