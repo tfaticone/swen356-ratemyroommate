@@ -1,6 +1,10 @@
 <template>
   <div class="login">
     <div style="margin: 0 auto;">
+      <md-button class="md-raised md-primary" @click.native="routeRegister">Register</md-button>
+
+      <md-button class="md-raised md-primary" @click.native="googleSignin">Sign In With Google</md-button>
+
       <form novalidate @submit.stop.prevent="login">
         <md-input-container>
           <label>Email</label>
@@ -19,8 +23,9 @@
 </template>
 
 <script>
-  import db from '../database';
   import Firebase from 'firebase';
+  import db from '../database';
+
   export default {
     name: 'login',
     data () {
@@ -42,6 +47,21 @@
             }
             console.log(error);
           });
+      },
+      googleSignin(event) {
+        const provider = new Firebase.auth.GoogleAuthProvider();
+        Firebase.auth().signInWithPopup(provider).then((result) => {
+          var token = result.credential.accessToken;
+          const user = result.user;
+        }).catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          const email = error.email;
+          const credential = error.credential;
+        });
+      },
+      routeRegister(event) {
+        this.$router.push('/register');
       },
     },
     firebase () {

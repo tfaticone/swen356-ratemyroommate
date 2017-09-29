@@ -42,14 +42,15 @@
 
         <md-button type="submit" class="md-raised md-primary">Register</md-button>
       </form>
-      <md-button class="md-raised md-primary" @click.native="googleRegister">Register With Google</md-button>
     </div>
   </div>
 </template>
 
 <script>
-  import db from '../database';
   import Firebase from 'firebase';
+  import db from '../database';
+  import router from 'vue-router';
+
   export default {
     name: 'register',
     data () {
@@ -70,26 +71,10 @@
               lastName: this.lastName,
               college: this.college,
             });
+            this.$router.push('/');
           }).catch((error) => {
             //Handle error
           });
-      },
-      googleRegister() {
-        const provider = new Firebase.auth.GoogleAuthProvider();
-        Firebase.auth().signInWithPopup(provider).then((result) => {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          var token = result.credential.accessToken;
-          // The signed-in user info.
-          const user = result.user;
-        }).catch((error) => {
-          // Handle Errors here.
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // The email of the user's account used.
-          const email = error.email;
-          // The firebase.auth.AuthCredential type that was used.
-          const credential = error.credential;
-        });
       },
     },
     firebase () {
