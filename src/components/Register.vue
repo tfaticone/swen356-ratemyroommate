@@ -19,7 +19,7 @@
 
         <md-input-container>
           <label for="college">College</label>
-          <md-select name="college" id="college" v-model="college">
+          <md-select id="college" v-model="college">
             <md-option value="monroe_community_college">Monroe Community College</md-option>
             <md-option value="university_of_rochester">University of Rochester</md-option>
             <md-option value="rochester_institute_of_technology">Rochester Institute of Technology</md-option>
@@ -42,13 +42,14 @@
 
         <md-button type="submit" class="md-raised md-primary">Register</md-button>
       </form>
+      <md-button class="md-raised md-primary" @click.native="googleRegister">Register With Google</md-button>
     </div>
   </div>
 </template>
 
 <script>
   import db from '../database';
-  import firebase from 'firebase';
+  import Firebase from 'firebase';
   export default {
     name: 'register',
     data () {
@@ -62,7 +63,7 @@
     },
     methods: {
       register(event) {
-        const user = firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+        Firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
           .then((user) => {
             user.updateProfile({
               firstName: this.firstName,
@@ -72,6 +73,23 @@
           }).catch((error) => {
             //Handle error
           });
+      },
+      googleRegister() {
+        const provider = new Firebase.auth.GoogleAuthProvider();
+        Firebase.auth().signInWithPopup(provider).then((result) => {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          var token = result.credential.accessToken;
+          // The signed-in user info.
+          const user = result.user;
+        }).catch((error) => {
+          // Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // The email of the user's account used.
+          const email = error.email;
+          // The firebase.auth.AuthCredential type that was used.
+          const credential = error.credential;
+        });
       },
     },
     firebase () {

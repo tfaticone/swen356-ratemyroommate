@@ -20,7 +20,7 @@
 
 <script>
   import db from '../database';
-  import firebase from 'firebase';
+  import Firebase from 'firebase';
   export default {
     name: 'login',
     data () {
@@ -31,9 +31,8 @@
     },
     methods: {
       login(event) {
-        firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-          .catch(function(error) {
-            // Handle Errors here.
+        Firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+          .catch((error) => {
             var errorCode = error.code;
             var errorMessage = error.message;
             if (errorCode === 'auth/wrong-password') {
