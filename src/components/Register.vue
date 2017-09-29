@@ -18,8 +18,16 @@
         </md-input-container>
 
         <md-input-container>
-          <label>College</label>
-          <md-input v-model="college" required></md-input>
+          <label for="college">College</label>
+          <md-select name="college" id="college" v-model="college">
+            <md-option value="monroe_community_college">Monroe Community College</md-option>
+            <md-option value="university_of_rochester">University of Rochester</md-option>
+            <md-option value="rochester_institute_of_technology">Rochester Institute of Technology</md-option>
+            <md-option value="suny_geneseo">SUNY Geneseo</md-option>
+            <md-option value="empire_state_college">Empire State College</md-option>
+            <md-option value="st_john_fisher_college">St. John Fisher College</md-option>
+            <md-option value="nazareth_college">Nazareth College</md-option>
+          </md-select>
         </md-input-container>
 
         <md-input-container>
@@ -40,8 +48,7 @@
 
 <script>
   import db from '../database';
-  import Firebase from 'firebase';
-
+  import firebase from 'firebase';
   export default {
     name: 'register',
     data () {
@@ -54,11 +61,17 @@
       };
     },
     methods: {
-      register: function(event) {
-        Firebase.auth().createUserWithEmailAndPassword(this.email, this.password).catch(function(error) {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-        });
+      register(event) {
+        const user = firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+          .then((user) => {
+            user.updateProfile({
+              firstName: this.firstName,
+              lastName: this.lastName,
+              college: this.college,
+            });
+          }).catch((error) => {
+            //Handle error
+          });
       },
     },
     firebase () {
