@@ -24,7 +24,6 @@
 
 <script>
   import Firebase from 'firebase';
-  import db from '../database';
 
   export default {
     name: 'login',

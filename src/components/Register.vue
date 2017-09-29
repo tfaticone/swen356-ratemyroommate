@@ -51,6 +51,7 @@
   import db from '../database';
   import router from 'vue-router';
 
+
   export default {
     name: 'register',
     data () {
