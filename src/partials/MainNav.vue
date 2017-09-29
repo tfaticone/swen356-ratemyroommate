@@ -7,7 +7,7 @@
         <md-icon>search</md-icon>
       </md-button>
 
-      <md-button>Login / Sign Up</md-button>
+      <md-button @click.native="$router.push('/login')">Login / Sign Up</md-button>
     </md-toolbar>
   </div>
 </template>
