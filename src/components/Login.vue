@@ -1,9 +1,6 @@
 <template>
-  <div class="login">
-    <div style="margin: 0 auto;">
-      <md-button class="md-raised md-primary" @click.native="routeRegister">Register</md-button>
-
-      <md-button class="md-raised md-primary" @click.native="googleSignin">Sign In With Google</md-button>
+  <md-layout md-gutter>
+    <md-layout md-column>
 
       <form novalidate @submit.stop.prevent="login">
         <md-input-container>
@@ -16,10 +13,15 @@
           <md-input v-model="password" required type="password"></md-input>
         </md-input-container>
 
-        <md-button type="submit" class="md-raised md-primary">Login</md-button>
+        <md-button type="submit" class="md-raised md-primary" >Log in</md-button>
+        <md-button class="md-raised md-secondary" @click.native="routeRegister">Register</md-button>
       </form>
-    </div>
-  </div>
+
+    </md-layout>
+    <md-layout md-column>
+      <md-button class="md-raised md-accent">Log in with google</md-button>
+    </md-layout>
+  </md-layout>
 </template>
 
 <script>
@@ -71,18 +73,5 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  h1, h2 {
-    font-weight: normal;
-  }
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-  a {
-    color: #42b983;
-  }
+
 </style>
