@@ -17,6 +17,11 @@
         <router-link to="Register">
           <md-button class="md-raised md-secondary">Register</md-button>
         </router-link>
+
+        <md-snackbar md-position="top center" ref="snackbar">
+          <span>{{error}}</span>
+          <md-button class="md-accent" @click="$refs.snackbar.close()">Ok</md-button>
+        </md-snackbar>
       </form>
     </md-layout>
 
@@ -35,6 +40,7 @@
       return {
         email: undefined,
         password: undefined,
+        error: undefined
       };
     },
     methods: {
@@ -44,11 +50,12 @@
             var errorCode = error.code;
             var errorMessage = error.message;
             if (errorCode === 'auth/wrong-password') {
-              alert('Wrong password.');
+              this.error = "Incorrect Password"
+              this.$refs.snackbar.open();
             } else {
-              alert(errorMessage);
+              this.error = errorMessage
+              this.$refs.snackbar.open();
             }
-            console.log(error);
           });
       },
       googleSignin(event) {
