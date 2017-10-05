@@ -54,6 +54,7 @@
       googleSignin(event) {
         const provider = new Firebase.auth.GoogleAuthProvider();
         Firebase.auth().signInWithPopup(provider).then((result) => {
+          //console.log(result.user.email)
           var token = result.credential.accessToken;
           const user = result.user;
         }).catch((error) => {
@@ -63,9 +64,6 @@
           const credential = error.credential;
         });
       }
-    },
-    firebase () {
-      return {};
     }
   }
 </script>
