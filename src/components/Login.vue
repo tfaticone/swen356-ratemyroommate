@@ -1,7 +1,6 @@
 <template>
   <md-layout md-gutter>
     <md-layout md-column>
-
       <form novalidate @submit.stop.prevent="login">
         <md-input-container>
           <label>Email</label>
@@ -14,12 +13,15 @@
         </md-input-container>
 
         <md-button type="submit" class="md-raised md-primary" >Log in</md-button>
-        <md-button class="md-raised md-secondary" @click.native="routeRegister">Register</md-button>
-      </form>
 
+        <router-link to="Register">
+          <md-button class="md-raised md-secondary">Register</md-button>
+        </router-link>
+      </form>
     </md-layout>
+
     <md-layout md-column>
-      <md-button class="md-raised md-accent">Log in with google</md-button>
+      <md-button class="md-raised md-accent" @click.native="googleSignin">Log in with google</md-button>
     </md-layout>
   </md-layout>
 </template>
@@ -60,10 +62,7 @@
           const email = error.email;
           const credential = error.credential;
         });
-      },
-      routeRegister(event) {
-        this.$router.push('/register');
-      },
+      }
     },
     firebase () {
       return {};
