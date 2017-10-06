@@ -19,8 +19,8 @@
         </router-link>
 
         <md-dialog ref="errorDialog">
-          <md-dialog-title>{{errorTitle}}</md-dialog-title>
-          <md-dialog-content>{{error}}</md-dialog-content>
+          <md-dialog-title>{{error.title}}</md-dialog-title>
+          <md-dialog-content>{{error.content}}</md-dialog-content>
 
           <md-dialog-actions>
             <!-- TODO: Reset password button -->
@@ -37,52 +37,49 @@
 </template>
 
 <script>
-  import Firebase from 'firebase';
+  import Firebase from 'firebase'
 
   export default {
     name: 'login',
     data () {
       return {
-        email: undefined,
-        password: undefined,
-        errorTitle: undefined,
-        error: undefined
+        email: '',
+        password: '',
+        error: {
+          title: '',
+          content: '',
+        }
       };
     },
     methods: {
-      login(event) {
+      login() {
         Firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+          .then((firebaseUser) => {
+            this.$router.push('/')
+          })
           .catch((error) => {
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            if (errorCode === 'auth/wrong-password') {
-              this.errorTitle = "Incorrect Password"
-              this.error = "Please enter the correct one"
-              openDialog('errorDialog')
-            } else {
-              this.error = errorMessage
-              openDialog('errorDialog')
-            }
-          });
+            this.error.title = error.code
+            this.error.content = error.message
+            this.openDialog('errorDialog')
+          })
       },
       googleSignin(event) {
-        const provider = new Firebase.auth.GoogleAuthProvider();
-        Firebase.auth().signInWithPopup(provider).then((result) => {
-          //console.log(result.user.email)
-          var token = result.credential.accessToken;
-          const user = result.user;
-        }).catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          const email = error.email;
-          const credential = error.credential;
-        });
+        const provider = new Firebase.auth.GoogleAuthProvider()
+        Firebase.auth().signInWithPopup(provider)
+          .then((firebaseUser) => {
+            this.$router.push('/')
+          })
+          .catch((error) => {
+            this.error.title = error.code
+            this.error.content = error.message
+            this.openDialog('errorDialog')
+          })
       },
       openDialog(ref) {
-        this.$refs[ref].open();
+        this.$refs[ref].open()
       },
       closeDialog(ref) {
-        this.$refs[ref].close();
+        this.$refs[ref].close()
       },
     }
   }
