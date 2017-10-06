@@ -49,31 +49,26 @@
           title: '',
           content: '',
         }
-      };
+      }
     },
     methods: {
       login() {
         Firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-          .then((firebaseUser) => {
-            this.$router.push('/')
-          })
-          .catch((error) => {
-            this.error.title = error.code
-            this.error.content = error.message
-            this.openDialog('errorDialog')
-          })
+          .then(this.onSignInSuccess)
+          .catch(this.onSignInError)
       },
       googleSignin() {
-        const provider = new Firebase.auth.GoogleAuthProvider()
-        Firebase.auth().signInWithPopup(provider)
-          .then((firebaseUser) => {
-            this.$router.push('/')
-          })
-          .catch((error) => {
-            this.error.title = error.code
-            this.error.content = error.message
-            this.openDialog('errorDialog')
-          })
+        Firebase.auth().signInWithPopup(new Firebase.auth.GoogleAuthProvider())
+          .then(this.onSignInSuccess)
+          .catch(this.onSignInError)
+      },
+      onSignInSuccess(firebaseUser) {
+        this.$router.push('/')
+      },
+      onSignInError(error) {
+        this.error.title = error.code
+        this.error.content = error.message
+        this.openDialog('errorDialog')
       },
       openDialog(ref) {
         this.$refs[ref].open()
