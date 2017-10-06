@@ -63,7 +63,7 @@
             this.openDialog('errorDialog')
           })
       },
-      googleSignin(event) {
+      googleSignin() {
         const provider = new Firebase.auth.GoogleAuthProvider()
         Firebase.auth().signInWithPopup(provider)
           .then((firebaseUser) => {
