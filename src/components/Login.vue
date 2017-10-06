@@ -18,10 +18,15 @@
           <md-button class="md-raised md-secondary">Register</md-button>
         </router-link>
 
-        <md-snackbar md-position="top center" ref="snackbar">
-          <span>{{error}}</span>
-          <md-button class="md-accent" @click="$refs.snackbar.close()">Ok</md-button>
-        </md-snackbar>
+        <md-dialog ref="errorDialog">
+          <md-dialog-title>{{errorTitle}}</md-dialog-title>
+          <md-dialog-content>{{error}}</md-dialog-content>
+
+          <md-dialog-actions>
+            <!-- TODO: Reset password button -->
+            <md-button class="md-primary" @click="closeDialog('errorDialog')">Ok</md-button>
+          </md-dialog-actions>
+        </md-dialog>
       </form>
     </md-layout>
 
@@ -40,6 +45,7 @@
       return {
         email: undefined,
         password: undefined,
+        errorTitle: undefined,
         error: undefined
       };
     },
@@ -50,11 +56,12 @@
             var errorCode = error.code;
             var errorMessage = error.message;
             if (errorCode === 'auth/wrong-password') {
-              this.error = "Incorrect Password"
-              this.$refs.snackbar.open();
+              this.errorTitle = "Incorrect Password"
+              this.error = "Please enter the correct one"
+              openDialog('errorDialog')
             } else {
               this.error = errorMessage
-              this.$refs.snackbar.open();
+              openDialog('errorDialog')
             }
           });
       },
@@ -70,7 +77,13 @@
           const email = error.email;
           const credential = error.credential;
         });
-      }
+      },
+      openDialog(ref) {
+        this.$refs[ref].open();
+      },
+      closeDialog(ref) {
+        this.$refs[ref].close();
+      },
     }
   }
 </script>
