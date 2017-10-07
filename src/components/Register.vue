@@ -1,5 +1,6 @@
 <template>
     <md-layout md-column>
+      {{user}}
       <form novalidate @submit.stop.prevent="register">
         <md-input-container>
           <label>First Name</label>
@@ -49,16 +50,15 @@
   import db from '../database';
   import router from 'vue-router';
 
-
   export default {
     name: 'register',
     data () {
       return {
-        firstName: undefined,
-        lastName: undefined,
-        email: undefined,
-        college: undefined,
-        password: undefined,
+        firstName: '',
+        lastName: '',
+        email: '',
+        college: '',
+        password: '',
       };
     },
     methods: {
@@ -66,36 +66,18 @@
         Firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
           .then((user) => {
             user.updateProfile({
-              firstName: this.firstName,
-              lastName: this.lastName,
-              college: this.college,
+              displayName: this.firstName + ' ' + this.lastName,
             });
             this.$router.push('/');
           }).catch((error) => {
             //Handle error
           });
       },
-    },
-    firebase () {
-      return {};
     }
   }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  h1, h2 {
-    font-weight: normal;
-  }
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-  a {
-    color: #42b983;
-  }
+
 </style>
