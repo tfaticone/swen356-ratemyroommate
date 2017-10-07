@@ -48,7 +48,6 @@
 
 <script>
   import Firebase from 'firebase'
-  import db from '../database' // Temporary initialization
 
   import ErrorDialog from '../partials/Dialog'
 
