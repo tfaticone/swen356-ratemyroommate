@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <main-nav></main-nav>
-    <router-view></router-view>
+    <router-view class="main-content"></router-view>
   </div>
 </template>
 
@@ -16,5 +16,8 @@
   }
 </script>
 
-<style>
+<style scoped>
+  .main-content {
+    padding: 16px;
+  }
 </style>
