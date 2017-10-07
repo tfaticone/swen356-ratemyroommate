@@ -13,5 +13,10 @@ export default {
     Firebase.auth().onAuthStateChanged((user) => {
       this.user = user
     })
+  },
+  methods: {
+    signOut() {
+      Firebase.auth().signOut()
+    }
   }
 }

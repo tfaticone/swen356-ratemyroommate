@@ -7,7 +7,7 @@
         <md-icon>search</md-icon>
       </md-button>
 
-      <md-button v-if="user">My Profile</md-button>
+      <md-button v-if="user" @click.native="signOut()">Log Out</md-button>
       <md-button v-else @click.native="$router.push('/login')">Login / Sign Up</md-button>
 
     </md-toolbar>
