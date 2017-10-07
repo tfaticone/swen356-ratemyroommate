@@ -1,6 +1,5 @@
 <template>
     <md-layout md-column>
-      {{user}}
       <form novalidate @submit.stop.prevent="register">
         <md-input-container>
           <label>First Name</label>
@@ -42,16 +41,22 @@
 
         <md-button type="submit" class="md-raised md-primary">Register</md-button>
       </form>
+
+      <error-dialog ref="dialog"></error-dialog>
     </md-layout>
 </template>
 
 <script>
-  import Firebase from 'firebase';
-  import db from '../database';
-  import router from 'vue-router';
+  import Firebase from 'firebase'
+  import db from '../database' // Temporary initialization
+
+  import ErrorDialog from '../partials/Dialog'
 
   export default {
     name: 'register',
+    components: {
+      ErrorDialog
+    },
     data () {
       return {
         firstName: '',
@@ -70,7 +75,7 @@
             });
             this.$router.push('/');
           }).catch((error) => {
-            //Handle error
+            this.$refs['dialog'].show(error.code, error.message)
           });
       },
     }

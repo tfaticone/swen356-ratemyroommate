@@ -18,15 +18,7 @@
           <md-button class="md-raised md-secondary">Register</md-button>
         </router-link>
 
-        <md-dialog ref="errorDialog">
-          <md-dialog-title>{{error.title}}</md-dialog-title>
-          <md-dialog-content>{{error.content}}</md-dialog-content>
-
-          <md-dialog-actions>
-            <!-- TODO: Reset password button -->
-            <md-button class="md-primary" @click="closeDialog('errorDialog')">Ok</md-button>
-          </md-dialog-actions>
-        </md-dialog>
+        <error-dialog ref="dialog"></error-dialog>
       </form>
     </md-layout>
 
@@ -39,8 +31,13 @@
 <script>
   import Firebase from 'firebase'
 
+  import ErrorDialog from '../partials/Dialog'
+
   export default {
     name: 'login',
+    components: {
+      ErrorDialog
+    },
     data () {
       return {
         email: '',
@@ -66,16 +63,8 @@
         this.$router.push('/')
       },
       onSignInError(error) {
-        this.error.title = error.code
-        this.error.content = error.message
-        this.openDialog('errorDialog')
-      },
-      openDialog(ref) {
-        this.$refs[ref].open()
-      },
-      closeDialog(ref) {
-        this.$refs[ref].close()
-      },
+        this.$refs['dialog'].show(error.code, error.message)
+      }
     }
   }
 </script>
