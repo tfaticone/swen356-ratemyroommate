@@ -1,6 +1,5 @@
 <template>
-  <div class="register">
-    <div style="margin: 0 auto;">
+    <md-layout md-column>
       <form novalidate @submit.stop.prevent="register">
         <md-input-container>
           <label>First Name</label>
@@ -42,8 +41,7 @@
 
         <md-button type="submit" class="md-raised md-primary">Register</md-button>
       </form>
-    </div>
-  </div>
+    </md-layout>
 </template>
 
 <script>
