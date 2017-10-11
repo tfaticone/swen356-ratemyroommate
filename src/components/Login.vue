@@ -41,11 +41,7 @@
     data () {
       return {
         email: '',
-        password: '',
-        error: {
-          title: '',
-          content: '',
-        }
+        password: ''
       }
     },
     methods: {
