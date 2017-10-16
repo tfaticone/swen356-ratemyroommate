@@ -17,19 +17,6 @@
         </md-input-container>
 
         <md-input-container>
-          <label for="college">College</label>
-          <md-select id="college" v-model="college">
-            <md-option value="monroe_community_college">Monroe Community College</md-option>
-            <md-option value="university_of_rochester">University of Rochester</md-option>
-            <md-option value="rochester_institute_of_technology">Rochester Institute of Technology</md-option>
-            <md-option value="suny_geneseo">SUNY Geneseo</md-option>
-            <md-option value="empire_state_college">Empire State College</md-option>
-            <md-option value="st_john_fisher_college">St. John Fisher College</md-option>
-            <md-option value="nazareth_college">Nazareth College</md-option>
-          </md-select>
-        </md-input-container>
-
-        <md-input-container>
           <label>Password</label>
           <md-input v-model="password" required type="password"></md-input>
         </md-input-container>
@@ -61,7 +48,6 @@
         firstName: '',
         lastName: '',
         email: '',
-        college: '',
         password: '',
       };
     },
