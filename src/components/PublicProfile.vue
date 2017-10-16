@@ -1,59 +1,95 @@
 <template>
   <div>
     <h1>
-      {{user.first_name + " " + user.last_name + " at " + user.college}}
+      {{ user.firstName + " " + user.lastName + " at " + school + " (" + userId + ")" }}
     </h1>
     <h2>
-      Average Ratings:
+      Overall Rating:
     </h2>
-    <h3>
-      {{averages}}
+    <h2>
+      {{ overallRating }}
+      <md-rating-bar v-model="overallRating" :md-max-rating="5" class="md-primary" :md-empty-icon="'star_border'" disabled></md-rating-bar>
+    </h2>
+    <h3 v-for="(value, key) in ratingAverages">
+      {{ key }}: {{ value }}
     </h3>
-
+    <h3 v-for="attr in attributes">
+      {{ attr[0] }}: {{ attr[1] }}
+    </h3>
+    <h2>
+      Reviews:
+    </h2>
+    <div v-for="(review, reviewId) in user.reviews">
+      <div v-for="(value, rating) in review.ratings">
+        {{ rating }}: {{ value }}
+      </div>
+      {{ review.comment }}
+    </div>
   </div>
 </template>
 
 <script>
   import db from '../database';
-  var schools_ref = db.ref('schools/');
+  import util from '../util/util';
 
   export default {
     name : 'profile',
     data :  function() {
-      const user_ref = schools_ref.child(this.$route.params.school).child(this.$route.params.user);
       const data = {
-        user : undefined,
-        averages : undefined,
+        school: this.$route.params.school,
+        userId: this.$route.params.user,
+        user: undefined,
+        overallRating: undefined,
+        ratingAverages: undefined,
+        attributes: undefined,
       };
 
+      const user_ref = db.ref(`schools/${this.$route.params.school}/${this.$route.params.user}`);
       user_ref.on('value', (snap) => {
         data.user = snap.val();
 
-        const values = {};
-        data.user.reviews.forEach((review) => {
-          Object.keys(review.ratings).forEach((key)=>
-          {
-            if (!values[key]) {
-              values[key] = [review.ratings[key]];
+        // tally up attributes and ratings
+        const attributes = {}; // smokes, has pet, etc.
+        const ratings = {}; // loudness, politeness, etc.
+        Object.keys(data.user.reviews).forEach((reviewId) => {
+          const review = data.user.reviews[reviewId];
+
+          // attributes
+          Object.keys(review.attributes).forEach((attrKey) => {
+            if (!attributes[attrKey]) {
+              attributes[attrKey] = 0
             }
-            else {
-              values[key].push(review.ratings[key])
+            if (review.attributes[attrKey] === true) {
+              attributes[attrKey] += 1;
+            } else {
+              attributes[attrKey] -= 1;
             }
           });
-        });
 
-        const averages ={};
-        Object.keys(values).forEach((key)=>{
-          let count = 0;
+          // ratings
+          Object.keys(review.ratings).forEach((key) => {
+            if (!ratings[key]) {
+              ratings[key] = [];
+            }
+            ratings[key].push(review.ratings[key]);
+          });
+        });
+        data.attributes = util.sortObject(attributes).filter(attribute => attribute[1] > 0);
+
+        // calculate averages for ease of judging a profile
+        const ratingAverages = {};
+        let overallRating = 0;
+        Object.keys(ratings).forEach((key)=>{
           let sum = 0;
-          values[key].forEach((num) =>{
+          ratings[key].forEach((num) =>{
             sum += num;
-            count++;
           });
-          averages[key] = sum / count;
+          const ratingAverage = sum / ratings[key].length;
+          ratingAverages[key] = (ratingAverage).toFixed(1);
+          overallRating += ratingAverage;
         });
-        data.averages = averages;
-
+        data.ratingAverages = ratingAverages;
+        data.overallRating = (overallRating / Object.keys(ratings).length).toFixed(1);
       });
 
       return data;

@@ -19,7 +19,7 @@ export default new Router({
       component: Register
     },
     {
-      path: '/schools/:school/users/:user',
+      path: '/schools/:school/:user',
       name: 'Public Profile',
       component: PublicProfile
     }
