@@ -58,10 +58,10 @@
             user.updateProfile({
               displayName: this.firstName + ' ' + this.lastName,
             });
-            this.$router.push('/');
+            this.$router.push('/')
           }).catch((error) => {
             this.$refs['dialog'].show(error.code, error.message)
-          });
+          })
       },
     }
   }
