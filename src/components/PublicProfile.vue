@@ -5,6 +5,8 @@
       {{ user.firstName + " " + user.lastName + " at " + school + " (" + userId + ")" }}
     </span>
 
+    <md-button class="md-raised md-primary">Rate This Roommate</md-button>
+
     <div>
       <span class="md-display-2">
         Overall: {{ overallRating }}
@@ -26,15 +28,16 @@
     </md-chip>
 
     <div>
-      <span class="md-title">
-        {{ Object.keys(user.reviews).length }} Reviews:
+      <span class="md-headline">
+        {{ Object.keys(user.ratings).length }} Roommate Ratings
       </span>
-      <md-whiteframe md-tag="section" v-for="(review, reviewId) in user.reviews">
-        <span class="md-title" v-for="(value, metric) in review.ratings">
+      <md-whiteframe md-tag="section" v-for="(rating, ratingId) in user.ratings">
+        <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US") }} </span><br>
+        <span class="md-title" v-for="(value, metric) in rating.metrics">
           {{ globalMetrics[metric].desc }}: {{ value }}
         </span>
         <div>
-          {{ review.comment }}
+          {{ rating.comment }}
         </div>
       </md-whiteframe md-tag="section">
     </div>
@@ -76,15 +79,15 @@
             // tally up metrics and traits
             const userTraits = {}; // smokes, has pet, etc.
             const userMetrics = {}; // loudness, politeness, etc.
-            Object.keys(data.user.reviews).forEach((reviewId) => {
-              const review = data.user.reviews[reviewId];
+            Object.keys(data.user.ratings).forEach((ratingId) => {
+              const rating = data.user.ratings[ratingId];
 
               // userTraits
-              Object.keys(review.traits).forEach((trait) => {
+              Object.keys(rating.traits).forEach((trait) => {
                 if (!userTraits[trait]) {
                   userTraits[trait] = 0
                 }
-                if (review.traits[trait] === true) {
+                if (rating.traits[trait] === true) {
                   userTraits[trait] += 1;
                 } else {
                   userTraits[trait] -= 1;
@@ -92,11 +95,11 @@
               });
 
               // userMetrics
-              Object.keys(review.ratings).forEach((key) => {
+              Object.keys(rating.metrics).forEach((key) => {
                 if (!userMetrics[key]) {
                   userMetrics[key] = [];
                 }
-                userMetrics[key].push(review.ratings[key]);
+                userMetrics[key].push(rating.metrics[key]);
               });
             });
             data.userTraits = util.sortObject(userTraits)
@@ -107,14 +110,14 @@
             // calculate averages for ease of judging a profile
             const metricAverages = {};
             let overallRating = 0;
-            Object.keys(userMetrics).forEach((key)=>{
+            Object.keys(userMetrics).forEach((key) => {
               let sum = 0;
               userMetrics[key].forEach((num) =>{
                 sum += num;
               });
               const ratingAverage = sum / userMetrics[key].length;
-              metricAverages[[key]] = (ratingAverage).toFixed(1);
-              overallRating += ratingAverage;
+              metricAverages[key] = (ratingAverage).toFixed(1);
+              overallRating += (globalMetrics[key].inverted ? 6 - ratingAverage : ratingAverage);
             });
 
             data.userMetrics = metricAverages;
