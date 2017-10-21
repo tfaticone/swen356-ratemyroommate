@@ -1,7 +1,7 @@
 <template>
   <div>
     <span class="md-headline">
-      {{ user.firstName + " " + user.lastName + " at " + school + " (" + userId + ")" }}
+      {{ viewedUser.firstName + " " + viewedUser.lastName + " at " + school + " (" + userId + ")" }}
     </span>
 
     <md-button class="md-raised md-primary">Rate This Roommate</md-button>
@@ -10,7 +10,6 @@
       <span class="md-display-2"> Overall: {{ userStats.overallRating }} </span>
       <md-rating-bar v-model="userStats.overallRating" :md-max-rating=5 class="md-primary" :md-empty-icon="'star_border'" disabled></md-rating-bar>
     </div>
-
     <md-list class="md-dense">
       <md-list-item v-for="(value, metric) in userStats.metrics">
         <div>
@@ -25,10 +24,71 @@
 
     <div>
       <span class="md-headline">
-        {{ Object.keys(user.ratings).length }} Roommate Ratings
+        {{ Object.keys(viewedUser.ratings).length }} Roommate Ratings
       </span>
 
-      <md-whiteframe md-tag="section" v-for="(rating, ratingId) in user.ratings">
+      <md-stepper v-on:completed="saveNewReview">
+        <md-step :md-disabled="finishedReview" :md-continue="stepOneNewReview">
+          <span class="md-display-1">Start a new review</span>
+          <md-layout md-column>
+            <md-layout md-gutter>
+              <md-layout md-gutter md-column md-flex="50">
+                <md-layout md-gutter md-align="center">
+                  <span class="md-headline">Cleanliness</span>
+                  <md-rating-bar :md-icon-size="1" v-model="cleanliness"></md-rating-bar>
+                </md-layout>
+              </md-layout>
+              <md-layout md-gutter md-column md-flex="50">
+                <md-layout md-gutter md-align="center">
+                  <span class="md-headline">Loudness</span>
+                  <md-rating-bar :md-icon-size="1" md-align="center" v-model="loudness"></md-rating-bar>
+                </md-layout>
+              </md-layout>
+            </md-layout>
+            <md-layout md-gutter>
+              <md-layout md-gutter md-column md-flex="50">
+                <md-layout md-gutter md-align="center">
+                  <span class="md-headline">Respectfulness</span>
+                  <md-rating-bar :md-icon-size="1" v-model="respectfulness"></md-rating-bar>
+                </md-layout>
+              </md-layout>
+              <md-layout md-gutter md-column md-flex="50">
+                <md-layout md-gutter md-align="center">
+                  <span class="md-headline">Sociability</span>
+                  <md-rating-bar :md-icon-size="1" md-align="center" v-model="sociability"></md-rating-bar>
+                </md-layout>
+              </md-layout>
+              <md-layout md-gutter md-column md-align="center">
+                <span class="md-headline">Traits (optional)</span>
+                <md-input-container>
+                  <label for="traits">Select all traits that apply</label>
+                  <md-select name="traits" multiple v-model="traits">
+                    <md-option v-for="(option, index) in globalTraits"
+                               :key="index"
+                               :value="index">
+                      {{ option }}
+                    </md-option>
+                    </md-select>
+                </md-input-container>
+              </md-layout>
+            </md-layout>
+          </md-layout>
+        </md-step>
+        <md-step :md-disabled="stepOneDisabled" :md-continue="stepTwoNewReview">
+          <md-layout md-gutter>
+            <md-input-container>
+              <md-layout md-gutter md-column md-flex="50" md-flex-offset="25">
+                <span class="md-display-1">Additional Comments</span>
+                <md-textarea v-model="additional_comments"></md-textarea>
+              </md-layout>
+            </md-input-container>
+          </md-layout>
+          <md-layout md-gutter id="successMessage">
+            <md-icon class="md-size-2x md-primary">done</md-icon> Review Submitted
+          </md-layout>
+        </md-step>
+      </md-stepper>
+      <md-whiteframe md-tag="section" v-for="(rating, ratingId) in viewedUser.ratings">
         <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US") }} </span><br>
         <span class="md-title" v-for="(value, metric) in rating.metrics">
           {{ globalMetrics[metric].desc }}: {{ value }}
@@ -42,6 +102,8 @@
 <script>
   import db from '../database';
   import util from '../util/util';
+  import firebase from 'firebase';
+  import AuthMixin from '../mixins/auth'
 
   const metricsRef = db.ref('metrics');
   const traitsRef = db.ref('traits');
@@ -49,10 +111,18 @@
 
   export default {
     name: 'profile',
+    mixins: [AuthMixin],
     data() {
       return {
+        traits: [],
         school: this.$route.params.school,
         userId: this.$route.params.user,
+        cleanliness: undefined,
+        loudness: undefined,
+        respectfulness: undefined,
+        sociability: undefined,
+        additional_comments: "",
+        finishedReview: false,
       };
     },
     firebase() {
@@ -65,18 +135,45 @@
           source: traitsRef,
           asObject: true,
         },
-        user: {
+        viewedUser: {
           source: schoolsRef.child(this.school).child(this.userId),
           asObject: true,
         },
+      }
+    },
+    methods: {
+      saveNewReview: function(){
+        let review = {
+          comment: this.additional_comments,
+          metrics: {
+            cleanliness: this.cleanliness,
+            loudness: this.loudness,
+            respectfulness: this.respectfulness,
+            sociability: this.sociability,
+          },
+          rater: this.user.displayName,
+          date: new Date().toLocaleString(),
+        };
+        let newTraits = {};
+        for(let trait in this.traits){
+          if(this.traits.hasOwnProperty(trait)){
+            newTraits[this.traits[trait]] = true;
+          }
+        }
+        review['traits'] = newTraits;
+        let ratingsRef = schoolsRef.child(this.school).child(this.userId).child('ratings');
+        let newRatingsRef = ratingsRef.push();
+        newRatingsRef.set(review);
+        this.finishedReview = true;
+        document.getElementById('successMessage').style.display = 'block';
       }
     },
     computed: {
       userStats() {
         const userMetrics = {}; // loudness, politeness, etc.
         const userTraits = {}; // smokes, has pet, etc.
-        Object.keys(this.user.ratings).forEach((ratingId) => {
-          const rating = this.user.ratings[ratingId];
+        Object.keys(this.viewedUser.ratings).forEach((ratingId) => {
+          const rating = this.viewedUser.ratings[ratingId];
 
           // tally traits
           Object.keys(rating.traits).forEach((trait) => {
@@ -118,6 +215,22 @@
           overallRating: (overallRating / Object.keys(userMetrics).length).toFixed(1),
         };
       },
+      stepOneNewReview: function() {
+        return !!this.cleanliness && !!this.loudness && !!this.respectfulness && !!this.sociability
+      },
+      stepTwoNewReview: function() {
+        return !!this.additional_comments
+      },
+      stepOneDisabled: function() {
+        return this.finishedReview || !this.stepOneNewReview;
+      }
     },
   }
 </script>
+
+<style scoped>
+  #successMessage {
+    display: none;
+  }
+
+</style>
