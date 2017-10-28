@@ -24,7 +24,7 @@
 
     <div>
       <span class="md-headline">
-        {{ Object.keys(viewedUser.ratings).length }} Roommate Ratings
+        {{ Object.keys(viewedUserReviews).length }} Roommate Ratings
       </span>
 
       <md-stepper v-on:completed="saveNewReview">
@@ -88,7 +88,7 @@
           </md-layout>
         </md-step>
       </md-stepper>
-      <md-whiteframe md-tag="section" v-for="(rating, ratingId) in viewedUser.ratings">
+      <md-whiteframe md-tag="section" v-for="(rating, ratingId) in viewedUserReviews">
         <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US") }} </span><br>
         <span class="md-title" v-for="(value, metric) in rating.metrics">
           {{ globalMetrics[metric].desc }}: {{ value }}
@@ -106,7 +106,8 @@
 
   const metricsRef = db.ref('metrics');
   const traitsRef = db.ref('traits');
-  const schoolsRef = db.ref('schools');
+  const schoolsRef = db.ref('users');
+  const reviewsRef = db.ref('reviews');
 
   export default {
     name: 'profile',
@@ -138,6 +139,10 @@
           source: schoolsRef.child(this.school).child(this.userId),
           asObject: true,
         },
+        viewedUserReviews: {
+          source: reviewsRef.child(this.school).child(this.userId),
+          asObject: true,
+        },
       }
     },
     methods: {
@@ -160,9 +165,9 @@
           }
         });
         review['traits'] = newTraits;
-        const ratingsRef = schoolsRef.child(this.school).child(this.userId).child('ratings');
-        const newRatingsRef = ratingsRef.push();
-        newRatingsRef.set(review);
+        const userReviewsRef = reviewsRef.child(this.school).child(this.userId);
+        const newReviewsRef = userReviewsRef.push();
+        newReviewsRef.set(review);
         this.finishedReview = true;
         document.getElementById('successMessage').style.display = 'block';
       }
@@ -171,28 +176,31 @@
       userStats() {
         const userMetrics = {}; // loudness, politeness, etc.
         const userTraits = {}; // smokes, has pet, etc.
-        Object.keys(this.viewedUser.ratings).forEach((ratingId) => {
-          const rating = this.viewedUser.ratings[ratingId];
+        Object.keys(this.viewedUserReviews).forEach((ratingId) => {
+          const rating = this.viewedUserReviews[ratingId];
 
-          // tally traits
-          Object.keys(rating.traits).forEach((trait) => {
-            if (!userTraits[trait]) {
-              userTraits[trait] = 0
-            }
-            if (rating.traits[trait] === true) {
-              userTraits[trait] += 1;
-            } else {
-              userTraits[trait] -= 1;
-            }
-          });
+          if(rating !== this.$route.params.user) {
 
-          // tally metrics
-          Object.keys(rating.metrics).forEach((key) => {
-            if (!userMetrics[key]) {
-              userMetrics[key] = [];
-            }
-            userMetrics[key].push(rating.metrics[key]);
-          });
+            // tally traits
+            Object.keys(rating.traits).forEach((trait) => {
+              if (!userTraits[trait]) {
+                userTraits[trait] = 0
+              }
+              if (rating.traits[trait] === true) {
+                userTraits[trait] += 1;
+              } else {
+                userTraits[trait] -= 1;
+              }
+            });
+
+            // tally metrics
+            Object.keys(rating.metrics).forEach((key) => {
+              if (!userMetrics[key]) {
+                userMetrics[key] = [];
+              }
+              userMetrics[key].push(rating.metrics[key]);
+            });
+          }
         });
 
         // calculate metric averages and overall rating
@@ -207,7 +215,6 @@
           metricAverages[key] = (ratingAverage).toFixed(1);
           overallRating += (this.globalMetrics[key].inverted ? 6 - ratingAverage : ratingAverage);
         });
-
         return {
           traits: util.sortObject(userTraits).filter(trait => trait[1] > 0),
           metrics: metricAverages,
