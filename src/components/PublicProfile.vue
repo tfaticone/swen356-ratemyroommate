@@ -177,29 +177,35 @@
         const userMetrics = {}; // loudness, politeness, etc.
         const userTraits = {}; // smokes, has pet, etc.
         Object.keys(this.viewedUserReviews).forEach((ratingId) => {
+          console.log(ratingId);
           const rating = this.viewedUserReviews[ratingId];
 
           if(rating !== this.$route.params.user) {
 
             // tally traits
-            Object.keys(rating.traits).forEach((trait) => {
-              if (!userTraits[trait]) {
-                userTraits[trait] = 0
-              }
-              if (rating.traits[trait] === true) {
-                userTraits[trait] += 1;
-              } else {
-                userTraits[trait] -= 1;
-              }
-            });
+            if (!!rating && !!rating.traits) {
+              Object.keys(rating.traits).forEach((trait) => {
+                if (!userTraits[trait]) {
+                  userTraits[trait] = 0
+                }
+                if (rating.traits[trait] === true) {
+                  userTraits[trait] += 1;
+                } else {
+                  userTraits[trait] -= 1;
+                }
+              });
+            }
+
 
             // tally metrics
-            Object.keys(rating.metrics).forEach((key) => {
-              if (!userMetrics[key]) {
-                userMetrics[key] = [];
-              }
-              userMetrics[key].push(rating.metrics[key]);
-            });
+            if (!!rating && !!rating.metrics) {
+              Object.keys(rating.metrics).forEach((key) => {
+                if (!userMetrics[key]) {
+                  userMetrics[key] = [];
+                }
+                userMetrics[key].push(rating.metrics[key]);
+              });
+            }
           }
         });
 
