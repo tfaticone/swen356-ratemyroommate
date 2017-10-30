@@ -52,7 +52,7 @@
       };
     },
     methods: {
-      register(event) {
+      register() {
         Firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
           .then((user) => {
             user.updateProfile({
@@ -62,7 +62,7 @@
           }).catch((error) => {
             this.$refs['dialog'].show(error.code, error.message)
           })
-      },
+      }
     }
   }
 </script>
