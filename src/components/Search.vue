@@ -3,11 +3,11 @@
     <md-layout md-column>
       <form novalidate @submit.stop.prevent="login">
         <md-input-container>
-          <label for="school">Select school</label>
-          <md-select name="school" id="school" v-model="school">
-            <md-option value="rit">Rochester Institute of Technology</md-option>
-            <md-option value="uor">University of Rochester</md-option>
-            <md-option value="mcc">Monroe Community College</md-option>
+          <label for="schoolDropdown">Select school</label>
+          <md-select name="schoolDropdown" id="schoolDropdown" v-model="selectedSchool">
+            <md-option v-for="school in schools">
+              {{ school.shortName }}
+            </md-option>
           </md-select>
         </md-input-container>
         <md-input-container>
@@ -15,46 +15,41 @@
           <md-input v-model="searchString" required></md-input>
         </md-input-container>
       </form>
-      <span class="md-title"> test </span>
-      <md-list v-for="student in students" :key="students.student">
-        <span class="md-title"> {{student.firstName }} </span>
-      </md-list>
     </md-layout>
   </md-layout>
 </template>
 
 <script>
-  import db from '../database'
+  import db from '../database';
 
-  import ErrorDialog from '../partials/Dialog'
-  import MdSelect from "../../node_modules/vue-material/src/components/mdSelect/mdSelect.vue";
-  import MdOption from "../../node_modules/vue-material/src/components/mdSelect/mdOption.vue";
-  import MdList from "../../node_modules/vue-material/src/components/mdList/mdList.vue";
-  import MdListItem from "../../node_modules/vue-material/src/components/mdList/mdListItemButton.vue";
+  //  import ErrorDialog from '../partials/Dialog';
+  //  import MdSelect from "../../node_modules/vue-material/src/components/mdSelect/mdSelect.vue";
+  //  import MdOption from "../../node_modules/vue-material/src/components/mdSelect/mdOption.vue";
+  //  import MdList from "../../node_modules/vue-material/src/components/mdList/mdList.vue";
+  //  import MdListItem from "../../node_modules/vue-material/src/components/mdList/mdListItemButton.vue";
 
-  let studentsRef = db.ref("schools/rit");
-
+  const schoolsRef = db.ref('schools');
 
   export default {
     name: 'search',
-    components: {
-      MdListItem,
-      MdList,
-      MdOption,
-      ErrorDialog
-    },
-    data () {
-      let studentsData = {};
-
-      studentsRef.on('value', (studentsSnap) => {
-        studentsData = studentsSnap.value();
-    });
-
+//    components: {
+//      MdListItem,
+//      MdList,
+//      MdOption,
+//      ErrorDialog
+//    },
+    data() {
       return {
         searchString: '',
-        students: studentsData,
+        selectedSchool: undefined,
+      };
+    },
+    firebase: function() {
+      return {
+        schools: schoolsRef,
       }
-
+    },
+    computed: {
     },
     methods: {
     }
