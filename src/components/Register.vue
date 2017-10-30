@@ -35,8 +35,11 @@
 
 <script>
   import Firebase from 'firebase'
+  import db from '../database'
 
   import ErrorDialog from '../partials/Dialog'
+
+  const usersRef = db.ref('/users')
 
   export default {
     name: 'register',
@@ -58,6 +61,16 @@
             user.updateProfile({
               displayName: this.firstName + ' ' + this.lastName,
             });
+
+            let userRef = usersRef
+              .child('TODO') // TODO get email domain
+              .child('TODO') // TODO get user email
+
+            userRef.push('firstName', this.firstName)
+            userRef.push('lastName', this.lastName)
+            userRef.push('college', 'TODO') // TODO get email domain
+            userRef.push('userName', 'TODO') // TODO get user email
+
             this.$router.push('/')
           }).catch((error) => {
             this.$refs['dialog'].show(error.code, error.message)
