@@ -52,12 +52,7 @@
       };
     },
     methods: {
-      register() {
-        if (!this.email.match(/([a-zA-Z0-9]+)\.edu$/)) {
-          this.$refs['dialog'].show('Not a valid email', "Please register with an edu email")
-          return
-        }
-
+      register(event) {
         Firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
           .then((user) => {
             user.updateProfile({
