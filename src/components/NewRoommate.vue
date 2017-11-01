@@ -1,5 +1,8 @@
 <template>
     <md-layout md-column>
+      <span class="md-headline">
+        Register a new roommate
+      </span>
       <form novalidate @submit.stop.prevent="register">
         <md-input-container>
           <label>First Name</label>
@@ -63,7 +66,6 @@
     methods: {
       register(event) {
         //register the roommate
-        console.log(this.globalSchools);
         let newRoomateObj = {};
         newRoomateObj.firstName = this.firstName;
         newRoomateObj.lastName = this.lastName;
