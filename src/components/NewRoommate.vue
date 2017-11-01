@@ -19,13 +19,7 @@
         <md-input-container>
           <label for="college">College</label>
           <md-select id="college" v-model="college">
-            <md-option value="monroe_community_college">Monroe Community College</md-option>
-            <md-option value="university_of_rochester">University of Rochester</md-option>
-            <md-option value="rochester_institute_of_technology">Rochester Institute of Technology</md-option>
-            <md-option value="suny_geneseo">SUNY Geneseo</md-option>
-            <md-option value="empire_state_college">Empire State College</md-option>
-            <md-option value="st_john_fisher_college">St. John Fisher College</md-option>
-            <md-option value="nazareth_college">Nazareth College</md-option>
+            <md-option v-for="(school,schoolid) in globalSchools" :value="school.domain">{{ school.name }}</md-option>
           </md-select>
         </md-input-container>
 
@@ -40,6 +34,10 @@
   import Firebase from 'firebase'
 
   import ErrorDialog from '../partials/Dialog'
+  import db from '../database';
+
+  const users = db.ref('users');
+  const schools = db.ref('schools');
 
   export default {
     name: 'register',
@@ -54,9 +52,44 @@
         college: '',
       };
     },
+    firebase() {
+      return {
+        globalSchools: {
+          source: schools,
+          asObject: false
+        }
+      }
+    },
     methods: {
       register(event) {
         //register the roommate
+        console.log(this.globalSchools);
+        let newRoomateObj = {};
+        newRoomateObj.firstName = this.firstName;
+        newRoomateObj.lastName = this.lastName;
+        newRoomateObj.overallRating = 0.0;
+
+        let username = this.email.substring(0,this.email.lastIndexOf("@"));
+        let domain = this.email.substring(this.email.lastIndexOf("@") + 1, this.email.lastIndexOf("."));
+        newRoomateObj.college = this.college;
+        newRoomateObj.username = username;
+
+        if(domain !== this.college) {
+          alert("The email does not match the domain of the college. Please enter a valid college and email.");
+          return;
+        }
+
+        users.child(this.college).child(username).once('value', (snapshot) => {
+          let exists = (snapshot.val() !== null);
+
+          if(exists) {
+            alert("This user is already in database!");
+            return;
+          } else {
+            users.child(this.college).child(username).set(newRoomateObj);
+            window.location.replace("/#/schools/" + this.college + "/" + username);
+          }
+        });
       },
     }
   }

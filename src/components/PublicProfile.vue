@@ -177,7 +177,6 @@
         const userMetrics = {}; // loudness, politeness, etc.
         const userTraits = {}; // smokes, has pet, etc.
         Object.keys(this.viewedUserReviews).forEach((ratingId) => {
-          console.log(ratingId);
           const rating = this.viewedUserReviews[ratingId];
 
           if(rating !== this.$route.params.user) {
@@ -221,10 +220,12 @@
           metricAverages[key] = (ratingAverage).toFixed(1);
           overallRating += (this.globalMetrics[key].inverted ? 6 - ratingAverage : ratingAverage);
         });
+
+        let userMetricLength = (Object.keys(userMetrics).length != 0) ? Object.keys(userMetrics).length : 1;
         return {
           traits: util.sortObject(userTraits).filter(trait => trait[1] > 0),
           metrics: metricAverages,
-          overallRating: (overallRating / Object.keys(userMetrics).length).toFixed(1),
+          overallRating: (overallRating / userMetricLength).toFixed(1),
         };
       },
       stepOneNewReview: function() {
