@@ -22,6 +22,15 @@
       {{ globalTraits[trait[0]] }}: +{{ trait[1] }}
     </md-chip>
 
+    <md-dialog ref="reportForm">
+      <form>
+        <md-input-container>
+          <label>Please explain the reason for the report</label>
+          <md-textarea></md-textarea>
+        </md-input-container>
+      </form>
+    </md-dialog>
+
     <div>
       <span class="md-headline">
         {{ Object.keys(viewedUserReviews).length }} Roommate Ratings
@@ -94,6 +103,7 @@
           {{ globalMetrics[metric].desc }}: {{ value }}
         </span>
         <div> {{ rating.comment }} </div>
+        <div><md-button v-on:click.stop.prevent="reportReview(ratingId, school, userId)" class="md-raised md-warn">Report</md-button></div>
       </md-whiteframe>
     </div>
   </div>
@@ -103,6 +113,8 @@
   import db from '../database';
   import util from '../util/util';
   import AuthMixin from '../mixins/auth'
+  import MdInputContainer from "../../node_modules/vue-material/src/components/mdInputContainer/mdInputContainer.vue";
+  import MdTextarea from "../../node_modules/vue-material/src/components/mdInputContainer/mdTextarea.vue";
 
   const metricsRef = db.ref('metrics');
   const traitsRef = db.ref('traits');
@@ -110,6 +122,9 @@
   const reviewsRef = db.ref('reviews');
 
   export default {
+    components: {
+      MdTextarea,
+      MdInputContainer},
     name: 'profile',
     mixins: [AuthMixin],
     data() {
@@ -170,7 +185,20 @@
         newReviewsRef.set(review);
         this.finishedReview = true;
         document.getElementById('successMessage').style.display = 'block';
-      }
+      },
+      reportReview(ratingId) {
+        console.log("REported review");
+        console.log(this.viewedUserReviews[ratingId]);
+        this.$refs['reportForm'].open();
+
+      },
+      openReportForm(ref){
+        console.log("called");
+        this.$refs[ref].open();
+      },
+      openReportForm(ref){
+        this.$refs[ref].close();
+      },
     },
     computed: {
       userStats() {
