@@ -16,7 +16,28 @@
           <md-input v-model="searchString" required></md-input>
         </md-input-container>
       </div>
-      {{ searchResults }}
+
+      <md-list name="searchResults" id="searchResults" v-model="searchResults" class="md-double-line">
+        <md-list-item :value=searchResult.domain v-for="searchResult in searchResults">
+
+          <div class="md-list-text-container">
+            <span>{{ searchResult.fullName }}</span>
+            <span>{{ searchResult.username }}</span>
+          </div>
+
+          <div>
+            {{ 'Rating: ' + searchResult.overallRating }}
+          </div>
+
+          <md-divider class="md-inset"></md-divider>
+          <!--{{ searchResult.fullName }}-->
+        </md-list-item>
+      </md-list>
+
+      <!--{{ searchResults }}-->
+
+
+
     </md-layout>
   </md-layout>
 </template>
