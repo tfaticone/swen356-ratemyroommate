@@ -89,7 +89,7 @@
         </md-step>
       </md-stepper>
       <md-whiteframe md-tag="section" v-for="(rating, ratingId) in viewedUserReviews">
-        <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US") }} </span><br>
+        <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US")}} </span><br>
         <span class="md-title" v-for="(value, metric) in rating.metrics">
           {{ globalMetrics[metric].desc }}: {{ value }}
         </span>
@@ -141,7 +141,7 @@
         },
         viewedUserReviews: {
           source: reviewsRef.child(this.school).child(this.userId),
-          asObject: true,
+          asObject: false,
         },
       }
     },
@@ -182,24 +182,29 @@
           if(rating !== this.$route.params.user) {
 
             // tally traits
-            Object.keys(rating.traits).forEach((trait) => {
-              if (!userTraits[trait]) {
-                userTraits[trait] = 0
-              }
-              if (rating.traits[trait] === true) {
-                userTraits[trait] += 1;
-              } else {
-                userTraits[trait] -= 1;
-              }
-            });
+            if (!!rating && !!rating.traits) {
+              Object.keys(rating.traits).forEach((trait) => {
+                if (!userTraits[trait]) {
+                  userTraits[trait] = 0
+                }
+                if (rating.traits[trait] === true) {
+                  userTraits[trait] += 1;
+                } else {
+                  userTraits[trait] -= 1;
+                }
+              });
+            }
+
 
             // tally metrics
-            Object.keys(rating.metrics).forEach((key) => {
-              if (!userMetrics[key]) {
-                userMetrics[key] = [];
-              }
-              userMetrics[key].push(rating.metrics[key]);
-            });
+            if (!!rating && !!rating.metrics) {
+              Object.keys(rating.metrics).forEach((key) => {
+                if (!userMetrics[key]) {
+                  userMetrics[key] = [];
+                }
+                userMetrics[key].push(rating.metrics[key]);
+              });
+            }
           }
         });
 
@@ -215,10 +220,12 @@
           metricAverages[key] = (ratingAverage).toFixed(1);
           overallRating += (this.globalMetrics[key].inverted ? 6 - ratingAverage : ratingAverage);
         });
+
+        let userMetricLength = (Object.keys(userMetrics).length != 0) ? Object.keys(userMetrics).length : 1;
         return {
           traits: util.sortObject(userTraits).filter(trait => trait[1] > 0),
           metrics: metricAverages,
-          overallRating: (overallRating / Object.keys(userMetrics).length).toFixed(1),
+          overallRating: (overallRating / userMetricLength).toFixed(1),
         };
       },
       stepOneNewReview: function() {
