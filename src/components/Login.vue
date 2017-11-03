@@ -18,7 +18,10 @@
           <md-button class="md-raised md-secondary">Register</md-button>
         </router-link>
 
-        <error-dialog ref="dialog"></error-dialog>
+        <md-dialog ref="errorDialog">
+          <md-dialog-title>{{errorDialog.title}}</md-dialog-title>
+          <md-dialog-content>{{errorDialog.content}} I'm the right guy</md-dialog-content>
+        </md-dialog>
       </form>
     </md-layout>
 
@@ -31,17 +34,16 @@
 <script>
   import Firebase from 'firebase'
 
-  import ErrorDialog from '../partials/Dialog'
-
   export default {
     name: 'login',
-    components: {
-      ErrorDialog
-    },
     data () {
       return {
         email: '',
-        password: ''
+        password: '',
+        errorDialog: {
+          title: '',
+          content: ''
+        }
       }
     },
     methods: {
@@ -59,7 +61,9 @@
         this.$router.push('/')
       },
       onSignInError(error) {
-        this.$refs['dialog'].show(error.code, error.message)
+        this.errorDialog.title = error.code
+        this.errorDialog.content = error.message
+        this.$refs['errorDialog'].open()
       }
     }
   }
