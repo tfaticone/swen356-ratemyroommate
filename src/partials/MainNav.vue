@@ -7,7 +7,7 @@
 
       <h2 class="md-title" style="flex: 1">Rate my Roommate</h2>
 
-      <md-button class="md-icon-button">
+      <md-button @click.native="$router.push('/search')" class="md-icon-button">
         <md-icon>search</md-icon>
       </md-button>
 
