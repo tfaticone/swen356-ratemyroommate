@@ -89,7 +89,7 @@
         </md-step>
       </md-stepper>
       <md-whiteframe md-tag="section" v-for="(rating, ratingId) in viewedUserReviews">
-        <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US") }} </span><br>
+        <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US")}} </span><br>
         <span class="md-title" v-for="(value, metric) in rating.metrics">
           {{ globalMetrics[metric].desc }}: {{ value }}
         </span>
@@ -141,7 +141,7 @@
         },
         viewedUserReviews: {
           source: reviewsRef.child(this.school).child(this.userId),
-          asObject: true,
+          asObject: false,
         },
       }
     },
