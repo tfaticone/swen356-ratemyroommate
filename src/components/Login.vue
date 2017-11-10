@@ -1,33 +1,31 @@
 <template>
-  <md-layout md-gutter>
-    <md-layout md-column>
-      <form novalidate @submit.stop.prevent="login">
-        <md-input-container>
-          <label>Email</label>
-          <md-input v-model="email" required></md-input>
-        </md-input-container>
+  <md-layout md-column>
+    <form novalidate @submit.stop.prevent="login">
+      <md-input-container>
+        <label>Email</label>
+        <md-input v-model="email" required></md-input>
+      </md-input-container>
 
-        <md-input-container>
-          <label>Password</label>
-          <md-input v-model="password" required type="password"></md-input>
-        </md-input-container>
+      <md-input-container>
+        <label>Password</label>
+        <md-input v-model="password" required type="password"></md-input>
+      </md-input-container>
 
-        <md-button type="submit" class="md-raised md-primary" >Log in</md-button>
+      <md-button type="submit" class="md-raised md-primary" >Log in</md-button>
 
-        <router-link to="Register">
-          <md-button class="md-raised md-secondary">Register</md-button>
-        </router-link>
+      <router-link to="Register">
+        <md-button class="md-raised md-secondary">Register</md-button>
+      </router-link>
 
-        <md-dialog ref="errorDialog">
-          <md-dialog-title>{{errorDialog.title}}</md-dialog-title>
-          <md-dialog-content>{{errorDialog.content}} I'm the right guy</md-dialog-content>
-        </md-dialog>
-      </form>
-    </md-layout>
+      <md-dialog ref="errorDialog">
+        <md-dialog-title>{{errorDialog.title}}</md-dialog-title>
+        <md-dialog-content>{{errorDialog.content}}</md-dialog-content>
+      </md-dialog>
+    </form>
 
-    <md-layout md-column>
-      <md-button class="md-raised md-accent" @click.native="googleSignin">Log in with google</md-button>
-    </md-layout>
+    <h3>Or</h3>
+
+    <md-button class="md-raised md-accent" @click.native="googleSignin">Log in with google</md-button>
   </md-layout>
 </template>
 
@@ -71,5 +69,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+.md-layout {
+  text-align: center;
+}
 </style>
