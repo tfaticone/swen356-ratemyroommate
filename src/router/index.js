@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Login from '@/components/Login';
 import Register from '@/components/Register';
 import PublicProfile from '@/components/PublicProfile';
+import Search from '@/components/Search';
 
 Vue.use(Router);
 
@@ -22,6 +23,11 @@ export default new Router({
       path: '/schools/:school/:user',
       name: 'Public Profile',
       component: PublicProfile
+    },
+    {
+      path: '/search',
+      name: 'Search',
+      component: Search
     }
   ]
 });
