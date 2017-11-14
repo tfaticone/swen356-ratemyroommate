@@ -4,11 +4,12 @@
       {{ viewedUser.firstName + " " + viewedUser.lastName + " at " + school + " (" + userId + ")" }}
     </span>
 
-    <md-button class="md-raised md-primary">Rate This Roommate</md-button>
+    <md-button class="md-raised md-primary" @click.native="openReviewDialog()">Rate This Roommate</md-button>
 
     <div>
       <span class="md-display-2"> Overall: {{ userStats.overallRating }} </span>
-      <md-rating-bar v-model="userStats.overallRating" :md-max-rating=5 class="md-primary" :md-empty-icon="'star_border'" disabled></md-rating-bar>
+      <md-rating-bar v-model="userStats.overallRating" :md-max-rating=5 class="md-primary"
+                     :md-empty-icon="'star_border'" disabled></md-rating-bar>
     </div>
     <md-list class="md-dense">
       <md-list-item v-for="(value, metric) in userStats.metrics">
@@ -27,67 +28,16 @@
         {{ Object.keys(viewedUserReviews).length }} Roommate Ratings
       </span>
 
-      <md-stepper v-on:completed="saveNewReview">
-        <md-step :md-disabled="finishedReview" :md-continue="stepOneNewReview">
-          <span class="md-display-1">Start a new review</span>
-          <md-layout md-column>
-            <md-layout md-gutter>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Cleanliness</span>
-                  <md-rating-bar :md-icon-size="1" v-model="newReviewCleanliness"></md-rating-bar>
-                </md-layout>
-              </md-layout>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Loudness</span>
-                  <md-rating-bar :md-icon-size="1" md-align="center" v-model="newReviewLoudness"></md-rating-bar>
-                </md-layout>
-              </md-layout>
-            </md-layout>
-            <md-layout md-gutter>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Respectfulness</span>
-                  <md-rating-bar :md-icon-size="1" v-model="newReviewRespectfulness"></md-rating-bar>
-                </md-layout>
-              </md-layout>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Sociability</span>
-                  <md-rating-bar :md-icon-size="1" md-align="center" v-model="newReviewSociability"></md-rating-bar>
-                </md-layout>
-              </md-layout>
-              <md-layout md-gutter md-column md-align="center">
-                <span class="md-headline">Traits (optional)</span>
-                <md-input-container>
-                  <label for="traits">Select all traits that apply</label>
-                  <md-select name="traits" multiple v-model="newReviewTraits">
-                    <md-option v-for="(option, index) in globalTraits"
-                               :key="index"
-                               :value="index">
-                      {{ option }}
-                    </md-option>
-                    </md-select>
-                </md-input-container>
-              </md-layout>
-            </md-layout>
-          </md-layout>
-        </md-step>
-        <md-step :md-disabled="stepOneDisabled" :md-continue="stepTwoNewReview">
-          <md-layout md-gutter>
-            <md-input-container>
-              <md-layout md-gutter md-column md-flex="50" md-flex-offset="25">
-                <span class="md-display-1">Additional Comments</span>
-                <md-textarea v-model="newReviewAdditionalComments"></md-textarea>
-              </md-layout>
-            </md-input-container>
-          </md-layout>
-          <md-layout md-gutter id="successMessage">
-            <md-icon class="md-size-2x md-primary">done</md-icon> Review Submitted
-          </md-layout>
-        </md-step>
-      </md-stepper>
+      <md-dialog ref="reviewDialog">
+        <md-dialog-title>New Review</md-dialog-title>
+        <md-dialog-content>
+          <rate-roommate
+            :school="school"
+            :user="userId"
+          ></rate-roommate>
+        </md-dialog-content>
+      </md-dialog>
+
       <md-whiteframe md-tag="section" v-for="(rating, ratingId) in viewedUserReviews">
         <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US")}} </span><br>
         <span class="md-title" v-for="(value, metric) in rating.metrics">
@@ -103,6 +53,7 @@
   import db from '../database';
   import util from '../util/util';
   import AuthMixin from '../mixins/auth'
+  import RateRoommate from './RateRoommate'
 
   const metricsRef = db.ref('metrics');
   const traitsRef = db.ref('traits');
@@ -112,17 +63,13 @@
   export default {
     name: 'profile',
     mixins: [AuthMixin],
+    components: {
+      RateRoommate
+    },
     data() {
       return {
-        newReviewTraits: [],
         school: this.$route.params.school,
         userId: this.$route.params.user,
-        newReviewCleanliness: undefined,
-        newReviewLoudness: undefined,
-        newReviewRespectfulness: undefined,
-        newReviewSociability: undefined,
-        newReviewAdditionalComments: "",
-        finishedReview: false,
       };
     },
     firebase() {
@@ -146,30 +93,8 @@
       }
     },
     methods: {
-      saveNewReview: function(){
-        const review = {
-          comment: this.newReviewAdditionalComments,
-          metrics: {
-            cleanliness: this.newReviewCleanliness,
-            loudness: this.newReviewLoudness,
-            respectfulness: this.newReviewRespectfulness,
-            sociability: this.newReviewSociability,
-          },
-          rater: this.user.displayName,
-          date: new Date().toLocaleString(),
-        };
-        let newTraits = {};
-        this.newReviewTraits.forEach((trait) => {
-          if(this.newReviewTraits.includes(trait)){
-            newTraits[trait] = true;
-          }
-        });
-        review['traits'] = newTraits;
-        const userReviewsRef = reviewsRef.child(this.school).child(this.userId);
-        const newReviewsRef = userReviewsRef.push();
-        newReviewsRef.set(review);
-        this.finishedReview = true;
-        document.getElementById('successMessage').style.display = 'block';
+      openReviewDialog() {
+        this.$refs['reviewDialog'].open()
       }
     },
     computed: {
@@ -179,7 +104,7 @@
         Object.keys(this.viewedUserReviews).forEach((ratingId) => {
           const rating = this.viewedUserReviews[ratingId];
 
-          if(rating !== this.$route.params.user) {
+          if (rating !== this.$route.params.user) {
 
             // tally traits
             if (!!rating && !!rating.traits) {
@@ -228,13 +153,13 @@
           overallRating: (overallRating / userMetricLength).toFixed(1),
         };
       },
-      stepOneNewReview: function() {
+      stepOneNewReview: function () {
         return !!this.newReviewCleanliness && !!this.newReviewLoudness && !!this.newReviewRespectfulness && !!this.newReviewSociability
       },
-      stepOneDisabled: function() {
+      stepOneDisabled: function () {
         return this.finishedReview || !this.stepOneNewReview;
       },
-      stepTwoNewReview: function() {
+      stepTwoNewReview: function () {
         return !!this.newReviewAdditionalComments && !this.stepOneDisabled;
       },
     },
@@ -245,5 +170,4 @@
   #successMessage {
     display: none;
   }
-
 </style>
