@@ -4,8 +4,6 @@
       {{ viewedUser.firstName + " " + viewedUser.lastName + " at " + school + " (" + userId + ")" }}
     </span>
 
-    <md-button class="md-raised md-primary" @click.native="openReviewDialog()">Rate This Roommate</md-button>
-
     <div>
       <span class="md-display-2"> Overall: {{ userStats.overallRating }} </span>
       <md-rating-bar v-model="userStats.overallRating" :md-max-rating="5" class="md-primary"
@@ -46,6 +44,10 @@
         <div> {{ rating.comment }} </div>
       </md-whiteframe>
     </div>
+
+    <md-button class="md-fab md-primary md-fab-bottom-right" @click.native="openReviewDialog()">
+      <md-icon>edit</md-icon>
+    </md-button>
   </div>
 </template>
 
