@@ -8,7 +8,7 @@
 
     <div>
       <span class="md-display-2"> Overall: {{ userStats.overallRating }} </span>
-      <md-rating-bar v-model="userStats.overallRating" :md-max-rating=5 class="md-primary"
+      <md-rating-bar v-model="userStats.overallRating" :md-max-rating="5" class="md-primary"
                      :md-empty-icon="'star_border'" disabled></md-rating-bar>
     </div>
     <md-list class="md-dense">
@@ -33,7 +33,7 @@
         <md-dialog-content>
           <rate-roommate
             :school="school"
-            :user="userId"
+            :reviewedUser="userId"
           ></rate-roommate>
         </md-dialog-content>
       </md-dialog>
