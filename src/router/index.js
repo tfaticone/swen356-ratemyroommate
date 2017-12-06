@@ -3,7 +3,8 @@ import Router from 'vue-router';
 import Login from '@/components/Login';
 import Register from '@/components/Register';
 import PublicProfile from '@/components/PublicProfile';
-import NewRoommate from '@/components/NewRoommate'
+import NewRoommate from '@/components/NewRoommate';
+import ReportsPanel from '@/components/ReportsPanel'
 
 Vue.use(Router);
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/roommate/new',
       name: 'New Roomate',
       component: NewRoommate
+    },
+    {
+      path: '/admin/reports',
+      name: 'Open Reports Panel',
+      component: ReportsPanel
     }
   ]
 });
