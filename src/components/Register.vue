@@ -42,20 +42,18 @@
         <md-button type="submit" class="md-raised md-primary">Register</md-button>
       </form>
 
-      <error-dialog ref="dialog"></error-dialog>
+      <md-dialog ref="errorDialog">
+        <md-dialog-title>{{errorDialog.title}}</md-dialog-title>
+        <md-dialog-content>{{errorDialog.content}}</md-dialog-content>
+      </md-dialog>
     </md-layout>
 </template>
 
 <script>
   import Firebase from 'firebase'
 
-  import ErrorDialog from '../partials/Dialog'
-
   export default {
     name: 'register',
-    components: {
-      ErrorDialog
-    },
     data () {
       return {
         firstName: '',
@@ -63,20 +61,26 @@
         email: '',
         college: '',
         password: '',
-      };
+        errorDialog: {
+          title: '',
+          content: ''
+        }
+      }
     },
     methods: {
-      register(event) {
+      register() {
         Firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
           .then((user) => {
             user.updateProfile({
               displayName: this.firstName + ' ' + this.lastName,
             });
-            this.$router.push('/');
+            this.$router.push('/')
           }).catch((error) => {
-            this.$refs['dialog'].show(error.code, error.message)
-          });
-      },
+            this.errorDialog.title = error.code
+            this.errorDialog.content = error.message
+            this.$refs['errorDialog'].open()
+          })
+      }
     }
   }
 </script>

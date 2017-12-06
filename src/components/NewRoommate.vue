@@ -28,15 +28,16 @@
 
         <md-button type="submit" class="md-raised md-primary">Register Roommate</md-button>
       </form>
-
-      <error-dialog ref="dialog"></error-dialog>
+      <md-dialog ref="errorDialog">
+        <md-dialog-title>{{error.title}}</md-dialog-title>
+        <md-dialog-content>{{error.content}}</md-dialog-content>
+      </md-dialog>
     </md-layout>
 </template>
 
 <script>
   import Firebase from 'firebase'
 
-  import ErrorDialog from '../partials/Dialog'
   import db from '../database';
 
   const users = db.ref('users');
@@ -44,15 +45,16 @@
 
   export default {
     name: 'register',
-    components: {
-      ErrorDialog
-    },
     data () {
       return {
         firstName: '',
         lastName: '',
         email: '',
         college: '',
+        error: {
+          title: '',
+          content: ''
+        }
       };
     },
     firebase() {

@@ -22,6 +22,25 @@
       {{ globalTraits[trait[0]] }}: +{{ trait[1] }}
     </md-chip>
 
+   <md-dialog ref="reportForm">
+     <md-dialog-title>Please explain the reason for the report</md-dialog-title>
+     <md-dialog-content>
+       <md-input-container>
+         <md-textarea v-model="newReport.description" required maxlength='250'></md-textarea>
+        </md-input-container>
+     </md-dialog-content>
+     <md-dialog-actions>
+       <md-button class="md-warn" @click="submitReport(true)">Submit Report</md-button>
+       <md-button class="md-primary" @click="closeReportForm('reportForm');">Cancel</md-button>
+     </md-dialog-actions>
+   </md-dialog>
+
+    <md-dialog-alert
+      :md-content="alert.content"
+      :md-ok-text="alert.ok"
+      ref="submittedReport">
+    </md-dialog-alert>
+
     <div>
       <span class="md-headline">
         {{ Object.keys(viewedUserReviews).length }} Roommate Ratings
@@ -94,6 +113,7 @@
           {{ globalMetrics[metric].desc }}: {{ value }}
         </span>
         <div> {{ rating.comment }} </div>
+        <div><md-button v-on:click.stop.prevent="reportReview(rating['.key'])" class="md-raised md-warn">Report</md-button></div>
       </md-whiteframe>
     </div>
   </div>
@@ -108,8 +128,10 @@
   const traitsRef = db.ref('traits');
   const schoolsRef = db.ref('users');
   const reviewsRef = db.ref('reviews');
+  const openReportsRef = db.ref('openReports');
 
   export default {
+    components: {},
     name: 'profile',
     mixins: [AuthMixin],
     data() {
@@ -123,6 +145,11 @@
         newReviewSociability: undefined,
         newReviewAdditionalComments: "",
         finishedReview: false,
+        newReport: {},
+        alert: {
+          content: "Thank you. Your report has been submitted.",
+          ok: "Ok"
+        },
       };
     },
     firebase() {
@@ -170,7 +197,31 @@
         newReviewsRef.set(review);
         this.finishedReview = true;
         document.getElementById('successMessage').style.display = 'block';
-      }
+      },
+      reportReview(ratingId) {
+        this.openReportForm('reportForm');
+        this.newReport.date = new Date().toLocaleString();
+        this.newReport.reporter = this.user.uid;
+        this.newReport.school = this.school;
+        this.newReport.reviewKey = ratingId;
+        this.newReport.user = this.userId;
+        this.newReport.reporterDisplayName = this.user.displayName;
+      },
+      openReportForm(ref){
+        this.$refs[ref].open();
+      },
+      closeReportForm(ref){
+        this.$refs[ref].close();
+      },
+      submitReport(closeModal) {
+        openReportsRef.child('reviews').push().set(this.newReport);
+        this.openReportForm('submittedReport');
+        this.newReport = {};
+
+        if (closeModal){
+          this.closeReportForm('reportForm');
+        }
+      },
     },
     computed: {
       userStats() {
