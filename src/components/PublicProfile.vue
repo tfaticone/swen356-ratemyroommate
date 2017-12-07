@@ -9,12 +9,39 @@
       {{viewedUser.firstName}} {{viewedUser.lastName}} @ {{school.name}}
     </span>
 
+    <!-- Display average ratings -->
+    <md-layout md-row>
+      <md-layout md-column>
+        <span class="md-headline">Overall Rating</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="globalAverage"></md-rating-bar>
+      </md-layout>
+
+      <md-layout md-column>
+        <span class="md-headline">Cleanliness</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageCleanliness"></md-rating-bar>
+      </md-layout>
+
+      <md-layout md-column>
+        <span class="md-headline">Loudness</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageLoudness"></md-rating-bar>
+      </md-layout>
+
+      <md-layout md-column>
+        <span class="md-headline">Respectfulness</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageRespectfulness"></md-rating-bar>
+      </md-layout>
+
+      <md-layout md-column>
+        <span class="md-headline">Sociability</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageSociability"></md-rating-bar>
+      </md-layout>
+    </md-layout>
 
     <!-- dialog containing the new review form -->
     <md-dialog ref="reviewDialog">
       <md-dialog-title>New Review</md-dialog-title>
       <md-dialog-content>
-        <rate-roommate :school="school" :reviewedUser="userId"/>
+        <rate-roommate :school="school.domain" :reviewedUser="userId"/>
       </md-dialog-content>
     </md-dialog>
 
@@ -96,16 +123,45 @@
     methods: {
       openReviewDialog() {
         this.$refs['reviewDialog'].open()
+      },
+      $_collectValuesFromReviews(reviews, metric) {
+        return reviews.map(review => review.metrics[metric])
+      },
+      $_averageOf(values) {
+        return values.reduce((previous, current) => {
+          return current += previous
+        }, 0) / values.length
       }
     },
     computed: {
-
+      averageCleanliness() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'cleanliness'))
+      },
+      averageLoudness() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'loudness'))
+      },
+      averageRespectfulness() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'respectfulness'))
+      },
+      averageSociability() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'sociability'))
+      },
+      globalAverage() {
+        return this.$_averageOf(
+          this.$_collectValuesFromReviews(this.reviews, 'cleanliness')
+            .concat(this.$_collectValuesFromReviews(this.reviews, 'loudness'))
+            .concat(this.$_collectValuesFromReviews(this.reviews, 'respectfulness'))
+            .concat(this.$_collectValuesFromReviews(this.reviews, 'sociability'))
+        )
+      },
     },
   }
 </script>
 
 <style scoped>
   .md-card {
-    max-width: 400px;
+    max-width: 500px;
+    margin: 4px;
+    display: inline-block;
   }
 </style>
