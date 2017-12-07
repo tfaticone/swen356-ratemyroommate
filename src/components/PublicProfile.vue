@@ -22,8 +22,8 @@
       </md-layout>
 
       <md-layout md-column>
-        <span class="md-headline">Loudness</span>
-        <md-rating-bar disabled :md-icon-size="1" v-model="averageLoudness"></md-rating-bar>
+        <span class="md-headline">Quietness</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageQuietness"></md-rating-bar>
       </md-layout>
 
       <md-layout md-column>
@@ -54,8 +54,8 @@
             <span class="md-headline">Cleanliness</span>
             <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.cleanliness"></md-rating-bar>
 
-            <span class="md-headline">Loudness</span>
-            <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.loudness"></md-rating-bar>
+            <span class="md-headline">Quietness</span>
+            <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.quietness"></md-rating-bar>
 
             <span class="md-headline">Respectfulness</span>
             <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.respectfulness"></md-rating-bar>
@@ -137,8 +137,8 @@
       averageCleanliness() {
         return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'cleanliness'))
       },
-      averageLoudness() {
-        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'loudness'))
+      averageQuietness() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'quietness'))
       },
       averageRespectfulness() {
         return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'respectfulness'))
@@ -149,7 +149,7 @@
       globalAverage() {
         return this.$_averageOf(
           this.$_collectValuesFromReviews(this.reviews, 'cleanliness')
-            .concat(this.$_collectValuesFromReviews(this.reviews, 'loudness'))
+            .concat(this.$_collectValuesFromReviews(this.reviews, 'quietness'))
             .concat(this.$_collectValuesFromReviews(this.reviews, 'respectfulness'))
             .concat(this.$_collectValuesFromReviews(this.reviews, 'sociability'))
         )

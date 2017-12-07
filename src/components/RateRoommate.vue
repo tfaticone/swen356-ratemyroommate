@@ -3,8 +3,8 @@
     <span class="md-headline">Cleanliness</span>
     <md-rating-bar :md-icon-size="1" v-model="cleanliness"></md-rating-bar>
 
-    <span class="md-headline">Loudness</span>
-    <md-rating-bar :md-icon-size="1" v-model="loudness"></md-rating-bar>
+    <span class="md-headline">Quietness</span>
+    <md-rating-bar :md-icon-size="1" v-model="quietness"></md-rating-bar>
 
     <span class="md-headline">Respectfulness</span>
     <md-rating-bar :md-icon-size="1" v-model="respectfulness"></md-rating-bar>
@@ -48,7 +48,7 @@
     data() {
       return {
         cleanliness: 0,
-        loudness: 0,
+        quietness: 0,
         respectfulness: 0,
         sociability: 0,
         additionalComments: '',
@@ -72,7 +72,7 @@
             date: new Date().toLocaleString(),
             metrics: {
               cleanliness: this.cleanliness,
-              loudness: this.loudness,
+              quietness: this.quietness,
               respectfulness: this.respectfulness,
               sociability: this.sociability
             },
