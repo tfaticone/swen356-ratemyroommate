@@ -49,24 +49,29 @@
     <md-card v-for="review in reviews" :key="review['.key']">
       <md-card-header>{{review.rater}}</md-card-header>
       <md-card-content>
-        <md-layout md-row>
-          <md-layout md-column>
-            <span class="md-headline">Cleanliness</span>
-            <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.cleanliness"></md-rating-bar>
+        <md-layout md-column>
+          <md-layout md-row>
+            <md-layout md-column>
+              <span class="md-headline">Cleanliness</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.cleanliness"></md-rating-bar>
 
-            <span class="md-headline">Quietness</span>
-            <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.quietness"></md-rating-bar>
+              <span class="md-headline">Quietness</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.quietness"></md-rating-bar>
 
-            <span class="md-headline">Respectfulness</span>
-            <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.respectfulness"></md-rating-bar>
+              <span class="md-headline">Respectfulness</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.respectfulness"></md-rating-bar>
 
-            <span class="md-headline">Sociability</span>
-            <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.sociability"></md-rating-bar>
+              <span class="md-headline">Sociability</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.sociability"></md-rating-bar>
+            </md-layout>
+            <md-layout md-column>
+              {{review.comment}}
+            </md-layout>
           </md-layout>
-          <md-layout md-column>
-            {{review.comment}}
-          </md-layout>
-      </md-layout>
+          <md-chip v-for="trait in review.traits">
+            {{trait}}
+          </md-chip>
+        </md-layout>
       </md-card-content>
     </md-card>
 
