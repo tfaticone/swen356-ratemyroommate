@@ -1,39 +1,63 @@
 <template>
   <div>
+
+    <!-- Headline displaying the Avatar and basic user info -->
     <span class="md-headline">
-      {{ viewedUser.firstName + " " + viewedUser.lastName + " at " + school + " (" + userId + ")" }}
+      <md-avatar class="md-primary md-avatar-icon md-large">
+        <md-icon>face</md-icon>
+      </md-avatar>
+      {{viewedUser.firstName}} {{viewedUser.lastName}} @ {{school.name}}
     </span>
 
-    <md-button class="md-raised md-primary">Rate This Roommate</md-button>
+    <!-- Display average ratings -->
+    <md-layout md-row>
+      <md-layout md-column>
+        <span class="md-headline">Overall Rating</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="globalAverage"></md-rating-bar>
+      </md-layout>
 
-    <div>
-      <span class="md-display-2"> Overall: {{ userStats.overallRating }} </span>
-      <md-rating-bar v-model="userStats.overallRating" :md-max-rating=5 class="md-primary" :md-empty-icon="'star_border'" disabled></md-rating-bar>
-    </div>
-    <md-list class="md-dense">
-      <md-list-item v-for="(value, metric) in userStats.metrics">
-        <div>
-          <span class="md-title">{{ globalMetrics[metric].desc }}: {{ value }}</span>
-        </div>
-      </md-list-item>
-    </md-list>
+      <md-layout md-column>
+        <span class="md-headline">Cleanliness</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageCleanliness"></md-rating-bar>
+      </md-layout>
 
-    <md-chip disabled v-for="trait in userStats.traits">
-      {{ globalTraits[trait[0]] }}: +{{ trait[1] }}
-    </md-chip>
+      <md-layout md-column>
+        <span class="md-headline">Quietness</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageQuietness"></md-rating-bar>
+      </md-layout>
 
-   <md-dialog ref="reportForm">
-     <md-dialog-title>Please explain the reason for the report</md-dialog-title>
-     <md-dialog-content>
-       <md-input-container>
-         <md-textarea v-model="newReport.description" required maxlength='250'></md-textarea>
+      <md-layout md-column>
+        <span class="md-headline">Respectfulness</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageRespectfulness"></md-rating-bar>
+      </md-layout>
+
+      <md-layout md-column>
+        <span class="md-headline">Sociability</span>
+        <md-rating-bar disabled :md-icon-size="1" v-model="averageSociability"></md-rating-bar>
+      </md-layout>
+    </md-layout>
+
+    <!-- dialog containing the new review form -->
+    <md-dialog ref="reviewDialog">
+      <md-dialog-title>New Review</md-dialog-title>
+      <md-dialog-content>
+        <rate-roommate :school="school.domain" :reviewedUser="userId"/>
+      </md-dialog-content>
+    </md-dialog>
+
+    <!-- Report popup -->
+    <md-dialog ref="reportForm">
+      <md-dialog-title>Please explain the reason for the report</md-dialog-title>
+      <md-dialog-content>
+        <md-input-container>
+          <md-textarea v-model="newReport.description" required maxlength='250'></md-textarea>
         </md-input-container>
-     </md-dialog-content>
-     <md-dialog-actions>
-       <md-button class="md-warn" @click="submitReport(true)">Submit Report</md-button>
-       <md-button class="md-primary" @click="closeReportForm('reportForm');">Cancel</md-button>
-     </md-dialog-actions>
-   </md-dialog>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-warn" @click="submitReport(true)">Submit Report</md-button>
+        <md-button class="md-primary" @click="closeReportForm('reportForm');">Cancel</md-button>
+      </md-dialog-actions>
+    </md-dialog>
 
     <md-dialog-alert
       :md-content="alert.content"
@@ -41,81 +65,44 @@
       ref="submittedReport">
     </md-dialog-alert>
 
-    <div>
-      <span class="md-headline">
-        {{ Object.keys(viewedUserReviews).length }} Roommate Ratings
-      </span>
+    <!-- Cards to display individual reviews -->
+    <md-card v-for="review in reviews" :key="review['.key']">
+      <md-card-header>{{review.rater}}</md-card-header>
+      <md-card-content>
+        <md-layout md-column>
+          <md-layout md-row>
+            <md-layout md-column>
+              <span class="md-headline">Cleanliness</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.cleanliness"></md-rating-bar>
 
-      <md-stepper v-on:completed="saveNewReview">
-        <md-step :md-disabled="finishedReview" :md-continue="stepOneNewReview">
-          <span class="md-display-1">Start a new review</span>
-          <md-layout md-column>
-            <md-layout md-gutter>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Cleanliness</span>
-                  <md-rating-bar :md-icon-size="1" v-model="newReviewCleanliness"></md-rating-bar>
-                </md-layout>
-              </md-layout>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Loudness</span>
-                  <md-rating-bar :md-icon-size="1" md-align="center" v-model="newReviewLoudness"></md-rating-bar>
-                </md-layout>
-              </md-layout>
+              <span class="md-headline">Quietness</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.quietness"></md-rating-bar>
+
+              <span class="md-headline">Respectfulness</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.respectfulness"></md-rating-bar>
+
+              <span class="md-headline">Sociability</span>
+              <md-rating-bar disabled :md-icon-size="1" v-model="review.metrics.sociability"></md-rating-bar>
             </md-layout>
-            <md-layout md-gutter>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Respectfulness</span>
-                  <md-rating-bar :md-icon-size="1" v-model="newReviewRespectfulness"></md-rating-bar>
-                </md-layout>
-              </md-layout>
-              <md-layout md-gutter md-column md-flex="50">
-                <md-layout md-gutter md-align="center">
-                  <span class="md-headline">Sociability</span>
-                  <md-rating-bar :md-icon-size="1" md-align="center" v-model="newReviewSociability"></md-rating-bar>
-                </md-layout>
-              </md-layout>
-              <md-layout md-gutter md-column md-align="center">
-                <span class="md-headline">Traits (optional)</span>
-                <md-input-container>
-                  <label for="traits">Select all traits that apply</label>
-                  <md-select name="traits" multiple v-model="newReviewTraits">
-                    <md-option v-for="(option, index) in globalTraits"
-                               :key="index"
-                               :value="index">
-                      {{ option }}
-                    </md-option>
-                    </md-select>
-                </md-input-container>
-              </md-layout>
+            <md-layout md-column>
+              {{review.comment}}
             </md-layout>
           </md-layout>
-        </md-step>
-        <md-step :md-disabled="stepOneDisabled" :md-continue="stepTwoNewReview">
-          <md-layout md-gutter>
-            <md-input-container>
-              <md-layout md-gutter md-column md-flex="50" md-flex-offset="25">
-                <span class="md-display-1">Additional Comments</span>
-                <md-textarea v-model="newReviewAdditionalComments"></md-textarea>
-              </md-layout>
-            </md-input-container>
-          </md-layout>
-          <md-layout md-gutter id="successMessage">
-            <md-icon class="md-size-2x md-primary">done</md-icon> Review Submitted
-          </md-layout>
-        </md-step>
-      </md-stepper>
-      <md-whiteframe md-tag="section" v-for="(rating, ratingId) in viewedUserReviews">
-        <span class="md-title"> Date submitted: {{ (new Date(rating.date)).toLocaleDateString("en-US")}} </span><br>
-        <span class="md-title" v-for="(value, metric) in rating.metrics">
-          {{ globalMetrics[metric].desc }}: {{ value }}
-        </span>
-        <div> {{ rating.comment }} </div>
-        <div><md-button v-on:click.stop.prevent="reportReview(rating['.key'])" class="md-raised md-warn">Report</md-button></div>
-      </md-whiteframe>
-    </div>
+          <md-chip v-for="trait in review.traits">
+            {{trait}}
+          </md-chip>
+        </md-layout>
+      </md-card-content>
+      <md-card-actions>
+        <md-button v-on:click.stop.prevent="reportReview(review['.key'])" class="md-raised md-warn">Report</md-button>
+      </md-card-actions>
+    </md-card>
+
+    <!-- Bottom-right FAB to open the review dialog -->
+    <md-button class="md-fab md-primary md-fab-bottom-right" @click.native="openReviewDialog()">
+      <md-icon>edit</md-icon>
+    </md-button>
+
   </div>
 </template>
 
@@ -123,28 +110,23 @@
   import db from '../database';
   import util from '../util/util';
   import AuthMixin from '../mixins/auth'
+  import RateRoommate from './RateRoommate'
 
-  const metricsRef = db.ref('metrics');
-  const traitsRef = db.ref('traits');
-  const schoolsRef = db.ref('users');
-  const reviewsRef = db.ref('reviews');
+  const usersRef   = db.ref('users')
+  const schoolsRef = db.ref('schools')
+  const reviewsRef = db.ref('reviews')
   const openReportsRef = db.ref('openReports');
 
   export default {
-    components: {},
     name: 'profile',
     mixins: [AuthMixin],
+    components: {
+      RateRoommate
+    },
     data() {
       return {
-        newReviewTraits: [],
         school: this.$route.params.school,
         userId: this.$route.params.user,
-        newReviewCleanliness: undefined,
-        newReviewLoudness: undefined,
-        newReviewRespectfulness: undefined,
-        newReviewSociability: undefined,
-        newReviewAdditionalComments: "",
-        finishedReview: false,
         newReport: {},
         alert: {
           content: "Thank you. Your report has been submitted.",
@@ -154,49 +136,27 @@
     },
     firebase() {
       return {
-        globalMetrics: {
-          source: metricsRef,
+        reviews: reviewsRef
+                    .child(this.school)
+                    .child(this.userId),
+
+        school: {
+          source: schoolsRef
+                    .child(this.school),
           asObject: true,
         },
-        globalTraits: {
-          source: traitsRef,
-          asObject: true,
-        },
+
         viewedUser: {
-          source: schoolsRef.child(this.school).child(this.userId),
+          source: usersRef
+                    .child(this.school)
+                    .child(this.userId),
           asObject: true,
-        },
-        viewedUserReviews: {
-          source: reviewsRef.child(this.school).child(this.userId),
-          asObject: false,
         },
       }
     },
     methods: {
-      saveNewReview: function(){
-        const review = {
-          comment: this.newReviewAdditionalComments,
-          metrics: {
-            cleanliness: this.newReviewCleanliness,
-            loudness: this.newReviewLoudness,
-            respectfulness: this.newReviewRespectfulness,
-            sociability: this.newReviewSociability,
-          },
-          rater: this.user.displayName,
-          date: new Date().toLocaleString(),
-        };
-        let newTraits = {};
-        this.newReviewTraits.forEach((trait) => {
-          if(this.newReviewTraits.includes(trait)){
-            newTraits[trait] = true;
-          }
-        });
-        review['traits'] = newTraits;
-        const userReviewsRef = reviewsRef.child(this.school).child(this.userId);
-        const newReviewsRef = userReviewsRef.push();
-        newReviewsRef.set(review);
-        this.finishedReview = true;
-        document.getElementById('successMessage').style.display = 'block';
+      openReviewDialog() {
+        this.$refs['reviewDialog'].open()
       },
       reportReview(ratingId) {
         this.openReportForm('reportForm');
@@ -218,83 +178,52 @@
         this.openReportForm('submittedReport');
         this.newReport = {};
 
-        if (closeModal){
+        if (closeModal) {
           this.closeReportForm('reportForm');
         }
       },
+      $_collectValuesFromReviews(reviews, metric) {
+        return reviews.map(review => review.metrics[metric])
+      },
+      $_averageOf(values) {
+        return values.reduce((previous, current) => {
+          return current += previous
+        }, 0) / values.length
+      }
     },
     computed: {
-      userStats() {
-        const userMetrics = {}; // loudness, politeness, etc.
-        const userTraits = {}; // smokes, has pet, etc.
-        Object.keys(this.viewedUserReviews).forEach((ratingId) => {
-          const rating = this.viewedUserReviews[ratingId];
-
-          if(rating !== this.$route.params.user) {
-
-            // tally traits
-            if (!!rating && !!rating.traits) {
-              Object.keys(rating.traits).forEach((trait) => {
-                if (!userTraits[trait]) {
-                  userTraits[trait] = 0
-                }
-                if (rating.traits[trait] === true) {
-                  userTraits[trait] += 1;
-                } else {
-                  userTraits[trait] -= 1;
-                }
-              });
-            }
-
-
-            // tally metrics
-            if (!!rating && !!rating.metrics) {
-              Object.keys(rating.metrics).forEach((key) => {
-                if (!userMetrics[key]) {
-                  userMetrics[key] = [];
-                }
-                userMetrics[key].push(rating.metrics[key]);
-              });
-            }
-          }
-        });
-
-        // calculate metric averages and overall rating
-        const metricAverages = {};
-        let overallRating = 0;
-        Object.keys(userMetrics).forEach((key) => {
-          let sum = 0;
-          userMetrics[key].forEach((num) => {
-            sum += num;
-          });
-          const ratingAverage = sum / userMetrics[key].length;
-          metricAverages[key] = (ratingAverage).toFixed(1);
-          overallRating += (this.globalMetrics[key].inverted ? 6 - ratingAverage : ratingAverage);
-        });
-
-        let userMetricLength = (Object.keys(userMetrics).length != 0) ? Object.keys(userMetrics).length : 1;
-        return {
-          traits: util.sortObject(userTraits).filter(trait => trait[1] > 0),
-          metrics: metricAverages,
-          overallRating: (overallRating / userMetricLength).toFixed(1),
-        };
+      averageCleanliness() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'cleanliness'))
       },
-      stepOneNewReview: function() {
-        return !!this.newReviewCleanliness && !!this.newReviewLoudness && !!this.newReviewRespectfulness && !!this.newReviewSociability
+      averageQuietness() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'quietness'))
       },
-      stepOneDisabled: function() {
-        return this.finishedReview || !this.stepOneNewReview;
+      averageRespectfulness() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'respectfulness'))
       },
-      stepTwoNewReview: function() {
-        return !!this.newReviewAdditionalComments && !this.stepOneDisabled;
+      averageSociability() {
+        return this.$_averageOf(this.$_collectValuesFromReviews(this.reviews, 'sociability'))
+      },
+      globalAverage() {
+        return this.$_averageOf(
+          this.$_collectValuesFromReviews(this.reviews, 'cleanliness')
+            .concat(this.$_collectValuesFromReviews(this.reviews, 'quietness'))
+            .concat(this.$_collectValuesFromReviews(this.reviews, 'respectfulness'))
+            .concat(this.$_collectValuesFromReviews(this.reviews, 'sociability'))
+        )
       },
     },
   }
 </script>
 
 <style scoped>
+  .md-card {
+    max-width: 500px;
+    margin: 4px;
+    display: inline-block;
+  }
+
   #successMessage {
     display: none;
   }
-
 </style>

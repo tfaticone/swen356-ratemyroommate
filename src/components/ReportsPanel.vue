@@ -51,11 +51,7 @@
 <script>
   import Firebase from 'firebase'
 
-  import ErrorDialog from '../partials/Dialog'
   import db from '../database';
-  import MdCardContent from "../../node_modules/vue-material/src/components/mdCard/mdCardContent.vue";
-  import MdCardHeader from "../../node_modules/vue-material/src/components/mdCard/mdCardHeader.vue";
-  import MdCardActions from "../../node_modules/vue-material/src/components/mdCard/mdCardActions.vue";
 
   const openReportsRef = db.ref('openReports');
   const closedReportsRef = db.ref('closedReports');
@@ -64,12 +60,6 @@
 
   export default {
     name: 'register',
-    components: {
-      MdCardActions,
-      MdCardHeader,
-      MdCardContent,
-      ErrorDialog
-    },
     data () {
       return {
       };
