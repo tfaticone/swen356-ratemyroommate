@@ -65,6 +65,20 @@
       ref="submittedReport">
     </md-dialog-alert>
 
+    <!-- Comment popup -->
+    <md-dialog ref="commentForm">
+      <md-dialog-title>Please type a response to the review</md-dialog-title>
+      <md-dialog-content>
+        <md-input-container>
+          <md-textarea v-model="newComment.comment" required maxlength='500'></md-textarea>
+        </md-input-container>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-warn" @click="submitComment(true)">Submit Comment</md-button>
+        <md-button class="md-primary" @click="closeCommentForm('commentForm');">Cancel</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
     <!-- Cards to display individual reviews -->
     <md-card v-for="review in reviews" :key="review['.key']">
       <md-card-header>{{review.rater}}</md-card-header>
@@ -93,8 +107,13 @@
           </md-chip>
         </md-layout>
       </md-card-content>
+      <md-card-content v-if="review.response" class="response">
+        <b>Response:</b><br>
+        {{review.response}}
+      </md-card-content>
       <md-card-actions>
         <md-button v-on:click.stop.prevent="reportReview(review['.key'])" class="md-raised md-warn">Report</md-button>
+        <md-button v-if="isViewingOwnProfile" v-on:click.stop.prevent="commentOnReview(review['.key'])" class="md-raised md-warn">Comment</md-button>
       </md-card-actions>
     </md-card>
 
@@ -112,9 +131,9 @@
   import AuthMixin from '../mixins/auth'
   import RateRoommate from './RateRoommate'
 
-  const usersRef   = db.ref('users')
-  const schoolsRef = db.ref('schools')
-  const reviewsRef = db.ref('reviews')
+  const usersRef   = db.ref('users');
+  const schoolsRef = db.ref('schools');
+  const reviewsRef = db.ref('reviews');
   const openReportsRef = db.ref('openReports');
 
   export default {
@@ -128,6 +147,7 @@
         school: this.$route.params.school,
         userId: this.$route.params.user,
         newReport: {},
+        newComment: {},
         alert: {
           content: "Thank you. Your report has been submitted.",
           ok: "Ok"
@@ -182,6 +202,27 @@
           this.closeReportForm('reportForm');
         }
       },
+      commentOnReview(ratingId) {
+        this.openCommentForm('commentForm');
+        this.newComment = {};
+        this.newComment.ratingId = ratingId;
+      },
+      openCommentForm(ref){
+        this.$refs[ref].open();
+      },
+      closeCommentForm(ref){
+        this.$refs[ref].close();
+      },
+      submitComment(closeModal) {
+        let review = reviewsRef.child(this.school['.key']).child(this.userId).child(this.newComment.ratingId);
+        this.newComment = {
+          response: this.newComment.comment,
+        };
+        review.update(this.newComment);
+        if (closeModal) {
+          this.closeCommentForm('commentForm');
+        }
+      },
       $_collectValuesFromReviews(reviews, metric) {
         return reviews.map(review => review.metrics[metric])
       },
@@ -212,18 +253,18 @@
             .concat(this.$_collectValuesFromReviews(this.reviews, 'sociability'))
         )
       },
+      isViewingOwnProfile(){
+        return (this.viewedUser.firstName + " " + this.viewedUser.lastName) === this.user.displayName
+      },
     },
   }
 </script>
 
 <style scoped>
-  .md-card {
-    max-width: 500px;
-    margin: 4px;
-    display: inline-block;
-  }
-
-  #successMessage {
-    display: none;
+  .response {
+    background-color: #a5d6a7;
+    border: 1px solid #66bb6a;
+    margin: 0.5rem 1rem;
+    border-radius: 10px;
   }
 </style>
