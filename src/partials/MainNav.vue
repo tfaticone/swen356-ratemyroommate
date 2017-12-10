@@ -7,7 +7,7 @@
 
       <h2 class="md-title" style="flex: 1">Rate my Roommate</h2>
 
-      <md-button @click.native="$router.push('/search')" class="md-icon-button">
+      <md-button @click.native="showSearch()" class="md-icon-button">
         <md-icon>search</md-icon>
       </md-button>
 
@@ -30,6 +30,13 @@
         <login></login>
       </md-dialog-content>
     </md-dialog>
+
+    <md-dialog ref="searchDialog">
+      <md-dialog-title class="searchPopup">Search People</md-dialog-title>
+      <md-dialog-content>
+        <search></search>
+      </md-dialog-content>
+    </md-dialog>
   </div>
 </template>
 
@@ -37,13 +44,15 @@
   import Firebase from 'firebase'
 
   import Login from '../components/Login'
+  import Search from '../components/Search.vue'
   import AuthMixin from '../mixins/auth'
 
   export default {
     name: 'MainNav',
     mixins: [AuthMixin],
     components: {
-      Login
+      Login,
+      Search
     },
     beforeCreate() {
       Firebase.auth().onAuthStateChanged((user) => {
@@ -56,11 +65,16 @@
       },
       showLogIn() {
         this.$refs['loginDialog'].open()
+      },
+      showSearch() {
+        this.$refs['searchDialog'].open()
       }
     }
   }
 </script>
 
 <style scoped>
-
+  .searchPopup {
+    width: 75vw;
+  }
 </style>
